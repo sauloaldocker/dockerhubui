@@ -1,0 +1,24 @@
+{
+  "name": "dockerhubui",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Dockerhub UI",
+  "author": "Saulo Aflitos <sauloal@gmail.com>",
+  "main": "index.js",
+  "single-instance": true,
+  "scripts": {"start": "node index.js"},
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "*",
+    "cookie-parser": "*",
+	"compression": "*",
+    "debug": "*",
+    "errorhandler": "*",
+    "express": "*",
+    "http": "*",
+    "method-override": "*",
+    "request": "*",
+    "serve-favicon": "*",
+    "serve-static": "*"
+  }
+}

@@ -1,5 +1,19 @@
 // JavaScript File
-var DOCKER_DATA = { "sauloal": {} };
+var DOCKER_DATA = { "biodckr": {} };
+
+var url_repo = url('?repos');
+console.log("url_repos", url_repo);
+if ( url_repo) {
+    var url_repos = url_repo.split(",");
+    for ( var u in url_repos ) {
+        var repo = url_repos[u];
+        console.log("u",u,"repo",repo);
+        DOCKER_DATA[repo] = {};
+    }
+}
+
+console.log("DOCKER_DATA", DOCKER_DATA);
+
 var CONTAINER   = "mainContent";
 
 var DO_LIST_ALL = true;

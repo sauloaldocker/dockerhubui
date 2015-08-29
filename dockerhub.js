@@ -16,7 +16,7 @@ var caches = {
     "histo": {},
     "logs" : {}
 };
-var CACHE_TIMEOUT = 300;
+var CACHE_TIMEOUT = 600;
 
 
 function check_cache(key, type) {

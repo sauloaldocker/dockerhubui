@@ -39,7 +39,7 @@ var COL_NAMES = [
     ["hist",
         [
             ["count"       , "Count"       ],
-            ["build_code"  , "Build Code"  ],
+            ["build_code"  , "Build Code"  , gen_link_buildcode],
             ["created_date", "Created Date"],
             ["last_updated", "Last Updated"],
 //            ["status"      , "Status"      ]
@@ -47,12 +47,13 @@ var COL_NAMES = [
     ],
     ["logs",
         [
-            ["error"              , "Error"             ],
-            ["failure"            , "failure"           ],
-            ["source_url"         , "Source Url"        ],
+            ["source_url"         , "Source Url"        , gen_link_source_url],
+//            ["build_path"         , "Build Path"        ],
             ["source_branch"      , "Source Branch"     ],
             ["status_description" , "Status Description"],
             ["source_type"        , "Source Type"       ],
+            ["error"              , "Error"             ],
+            ["failure"            , "Failure"           ],
 //            ["dockerfile_contents", "Dockerfile"        , make_pre],
 //            ["logs"               , "logs"              , make_pre]
         ]
@@ -75,9 +76,16 @@ for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var col_proc = col_data[2];
         
         if (!col_proc) {
-            col_data[2] = function(v) {return v;};
+            col_data[2] = function(d, v) {return v;};
         }
     }
 }
 
-function make_pre (v) {return "<pre>"+v+"</pre>";}
+var DOCKERHUB_URL = 'https://hub.docker.com/';
+var GIT_URL       = 'https://github.com/';
+function gen_link_buildcode (d, w) { var p = DOCKERHUB_URL + 'r/' + d.repo_full_name + '/builds/' + w + '/';                                   return '<a href="'+p+'">'+w+'</a>'; }
+function gen_link_source_url(d, x) { var x = x.replace('.git', '').replace(GIT_URL,''); var p = x + '/tree/' + d.source_branch + d.build_path; return '<a href="'+GIT_URL+p+'">'+x+'</a>'; }
+function make_pre           (d, y) {                                                                                                           return "<pre>"+y+"</pre>"; }
+
+console.log("COL_TYPES", COL_TYPES);
+console.log("COL_NAMES", COL_NAMES);

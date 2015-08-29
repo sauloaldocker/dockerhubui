@@ -30,11 +30,12 @@ function init() {
     $th1.append($("<th/>", { "html": "Name", "rowspan": 2}));
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
-        var type      = COL_NAMES[t];
-        var type_name = type[0];
-        var type_cols = type[1];
+        var type       = COL_NAMES[t];
+        var type_name  = type[0];
+        var type_title = type[1];
+        var type_cols  = type[2];
 
-        $("<th/>", {"class": "row_header", "html": type_name, "colspan":type_cols.length}).appendTo($th1);
+        $("<th/>", {"class": "row_header", "html": type_title, "colspan":type_cols.length}).appendTo($th1);
 
         for ( var c = 0; c < type_cols.length; c++ ) {
             var col_data = type_cols[c];
@@ -114,14 +115,15 @@ function get_repos(username, $container, clbk) {
                 
 
                 for ( var t = 0; t < COL_NAMES.length; t++ ) {
-                    var type      = COL_NAMES[t];
-                    var type_name = type[0];
-                    var type_cols = type[1];
+                    var type       = COL_NAMES[t];
+                    var type_name  = type[0];
+                    //var type_title = type[1];
+                    var type_cols  = type[2];
     
                     for ( var c = 0; c < type_cols.length; c++ ) {
                         var col_data = type_cols[c];
                         var col_var  = col_data[0];
-                        var col_name = col_data[1];
+                        //var col_name = col_data[1];
                         
                         $("<td/>", {"class": "cell_repo cell_"+type_name, "id": tr_id+"_"+type_name+"_"+col_var}).appendTo($repo_tr);
                     }
@@ -260,7 +262,7 @@ function get_logs(repo_full_name, build_code, tr_id, type_name, clbk_success, cl
 function format_data(tr_id, type_name, data) {
     //console.log("formatting data", tr_id, type_name, data);
     
-    var type_cols = COL_NAMES[ COL_TYPES[ type_name ] ][1];
+    var type_cols = COL_NAMES[ COL_TYPES[ type_name ] ][2];
     //console.log("type_cols", type_cols);
     
     for ( var c in type_cols ) {
@@ -268,6 +270,7 @@ function format_data(tr_id, type_name, data) {
         var col_var  = col_data[0];
         var col_name = col_data[1];
         var col_proc = col_data[2];
+
         var val      = data[col_var];
         var cell_id  = tr_id + "_" + type_name + "_" + col_var;
         var val_pos  = col_proc(data, val);

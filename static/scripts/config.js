@@ -19,7 +19,7 @@ var CONTAINER   = "mainContent";
 var DO_LIST_ALL = true;
 
 var COL_NAMES = [
-    ["info", 
+    ["info", "Repository Information",
         [
 //            ["user"            , "User"            ], 
 //            ["name"            , "Name"            ],
@@ -29,31 +29,31 @@ var COL_NAMES = [
 //            ["is_private"      , "Is Private"      ],
             ["is_automated"    , "Is Automated"    ],
 //            ["can_edit"        , "Can Edit"        ],
-            ["star_count"      , "Star Count"      ],
-            ["pull_count"      , "Pull Count"      ],
+            ["star_count"      , "# Stars"      ],
+            ["pull_count"      , "# Pulls"      ],
 //            ["last_updated"    , "Last  Updated"   ],
 //            ["has_starred"     , "Has Starred"     ],
 //            ["full_description", "Full Description"]
         ],
     ],
-    ["hist",
+    ["hist", "Repository History",
         [
-            ["count"       , "Count"       ],
+            ["count"       , "# Builds"       ],
             ["build_code"  , "Build Code"  , gen_link_buildcode],
-            ["created_date", "Created Date"],
-            ["last_updated", "Last Updated"],
+            ["created_date", "Created Date", parse_date        ],
+            ["last_updated", "Last Updated", parse_date        ],
 //            ["status"      , "Status"      ]
         ]
     ],
-    ["logs",
+    ["logs", "Build Logs",
         [
             ["source_url"         , "Source Url"        , gen_link_source_url],
 //            ["build_path"         , "Build Path"        ],
             ["source_branch"      , "Source Branch"     ],
             ["status_description" , "Status Description"],
             ["source_type"        , "Source Type"       ],
-            ["error"              , "Error"             ],
             ["failure"            , "Failure"           ],
+            ["error"              , "Error"             ],
 //            ["dockerfile_contents", "Dockerfile"        , make_pre],
 //            ["logs"               , "logs"              , make_pre]
         ]
@@ -65,7 +65,7 @@ var COL_TYPES = {};
 for ( var t = 0; t < COL_NAMES.length; t++ ) {
     var type      = COL_NAMES[t];
     var type_name = type[0];
-    var type_cols = type[1];
+    var type_cols = type[2];
 
     COL_TYPES[type_name] = t;
 
@@ -86,6 +86,26 @@ var GIT_URL       = 'https://github.com/';
 function gen_link_buildcode (d, w) { var p = DOCKERHUB_URL + 'r/' + d.repo_full_name + '/builds/' + w + '/';                                   return '<a href="'+p+'">'+w+'</a>'; }
 function gen_link_source_url(d, x) { var x = x.replace('.git', '').replace(GIT_URL,''); var p = x + '/tree/' + d.source_branch + d.build_path; return '<a href="'+GIT_URL+p+'">'+x+'</a>'; }
 function make_pre           (d, y) {                                                                                                           return "<pre>"+y+"</pre>"; }
+function parse_date         (d, z) { return format_date(new Date(z)); }
+
+function format_date(d) {
+    var day = d.getUTCDate();
+    var mon = d.getUTCMonth();
+    var yr  = d.getUTCFullYear();
+    
+    var hr  = d.getUTCHours();
+    var min = d.getUTCMinutes();
+
+    day = day > 9 ? day : '0' + day;
+    mon = mon > 9 ? mon : '0' + mon;
+    hr  = hr  > 9 ? hr  : '0' + hr ;
+    min = min > 9 ? min : '0' + min;
+    
+    var str = hr + ':' + min + ' ' + day + '/' + mon + '/' + yr + ' UTC';
+
+    console.log(str);
+    return str;
+}
 
 console.log("COL_TYPES", COL_TYPES);
 console.log("COL_NAMES", COL_NAMES);

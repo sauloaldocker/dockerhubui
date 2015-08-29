@@ -5,25 +5,33 @@
 <head>
 <meta charset="utf-8">
 <title>Biodocker DockerHub Dashboard</title>
+
 <style type="text/css">
+/*
 #mainContent {
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: xx-large;
-	font-weight: bold;
-	background-color: #E3F0FB;
+	font-size: medium;
+	background-color: #EEEEEE;
 	border-radius: 4px;
 	padding: 10px;
-	text-align: center;
+	text-align: left;
+	vertical-align: text-top;
 }
-.buttonStyle {
-	border-radius: 4px;
-	border: thin solid #F0E020;
-	padding: 5px;
-	background-color: #F8F094;
-	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+*/
+table {
+	white-space: nowrap;
+}
+
+tbody tr:nth-child(odd) {
+   background-color: #ccc;
+}
+
+tbody th {
+	background-color: #eee;
+}
+
+.row_header {
 	font-weight: bold;
-	color: #663300;
-	width: 75px;
 }
 
 .buttonStyle:hover {
@@ -42,17 +50,13 @@
 </style>
 </head>
 
-<body onload="init();">
+<body>
 <div id="mainContent">
 </div>
 
 </body>
 
-<script type="text/javascript">
-	var module = {};
-	var exports = {};
-</script>
-
+<script type="text/javascript" src="scripts/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="scripts/config.js"></script>
 <script type="text/javascript" src="scripts/init.js"></script>
 

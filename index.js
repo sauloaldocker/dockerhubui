@@ -10,25 +10,31 @@ var application_root = __dirname,
 	methodOverride   = require( 'method-override' ),
 	path             = require( 'path'            ),
     request          = require( 'request'         ),
+    requestCaching   = require( 'node-request-caching' ),
     serveStatic      = require( 'serve-static'    ),
 	serveFavicon     = require( 'serve-favicon'   );
+
+var getters          = require( './getters.js'    );
 
 
 var app = express();
 
+app.conf = {};
+app.conf.application_root = application_root;
+app.conf.port             = port;
+app.conf.ip               = ip;
 
-app.console          = console;
-app.application_root = application_root;
-app.tempPath         = 
-
-app.bodyParser       = bodyParser;
-app.compression      = compression;
-app.cookieParser     = cookieParser;
-app.errorHandler     = errorHandler;
-app.express          = express;
-app.request          = request,
-app.serveStatic      = serveStatic,
-app.serveFavicon     = serveFavicon;
+app.mods = {}
+app.mods.console          = console;
+app.mods.bodyParser       = bodyParser;
+app.mods.compression      = compression;
+app.mods.cookieParser     = cookieParser;
+app.mods.errorHandler     = errorHandler;
+app.mods.express          = express;
+app.mods.request          = request,
+app.mods.requestCaching   = requestCaching;
+app.mods.serveStatic      = serveStatic,
+app.mods.serveFavicon     = serveFavicon;
 
 
 console.log( 'application_root: ', application_root );
@@ -51,18 +57,21 @@ app.use( compression() );
 //Show all errors in development
 app.use( errorHandler({ dumpExceptions: true, showStack: true }));
 
-app.use(express.static('static'));
+app.use(express.static('static', {etag: true}));
+
+var checksum         = require( 'checksum'        );
+app.set('etag', function (body, encoding) {
+  return checksum(body); // consider the function is defined
+})
 
 //console.log('views path', path.join(application_root, 'views'));
 
-app.get(    '/' , function (req,res) { res.redirect('/static/'); } );
+//app.get(    '/'                                      , function (req,res) { res.redirect('/static/'); } );
 
-app.get(    '/data/:user_name' , getter );
-
-function getter(req,res) { 
-    var username = request.params.username;
-    console.log("getting username");
-}
+app.get(    '/repos/:username/'                      , getters.get_repos        );
+app.get(    '/info/:username/:reponame/'             , getters.get_repo_info    );
+app.get(    '/history/:username/:reponame/'          , getters.get_repo_history );
+app.get(    '/logs/:username/:reponame/:build_code/' , getters.get_build_log    );
 
 exports.app      = app;
 

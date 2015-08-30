@@ -27,7 +27,7 @@ function init() {
     $th1.appendTo($tbl);
     $th2.appendTo($tbl);
     
-    $th1.append($("<th/>", { "html": "Name", "rowspan": 2}));
+    $th1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}));
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var type       = COL_NAMES[t];
@@ -89,7 +89,7 @@ function get_repos(username, $container, clbk) {
             
             repos.sort(compare_info);
             
-            //repos = [ repos[2] ];
+            if ( DEBUG )  { repos = [ repos[2] ] };
             
             var repo_full_names = [];
             for ( var r in repos ) {
@@ -138,15 +138,17 @@ function get_repos(username, $container, clbk) {
             
             //console.log(repo_full_names);
             
-            chain_queries( repo_full_names, 0, clbk );
+            chain_queries( username, repo_full_names, 0, clbk );
         }
     );
 }
 
 
-function chain_queries( repo_full_names, repo_pos, clbk ) {
+function chain_queries( username, repo_full_names, repo_pos, clbk ) {
     var repo_full_name = repo_full_names[repo_pos][0];
     var tr_id          = repo_full_names[repo_pos][1];
+    
+    DOCKER_DATA[username][repo_full_name] = {};
     
     console.log("chain_queries", repo_full_name, tr_id, repo_pos );
     
@@ -159,17 +161,17 @@ function chain_queries( repo_full_names, repo_pos, clbk ) {
             return; 
         } else { 
             console.log("chain_queries", repo_full_name, "next", tr_id, repo_pos );
-            chain_queries( repo_full_names, repo_pos+1, clbk );
+            chain_queries( username, repo_full_names, repo_pos+1, clbk );
         }
     };
     
-    get_info(repo_full_name, tr_id, "info", 
-        function( repo_full_name, build_code, tr_id ) {
+    get_info(username, repo_full_name, null, tr_id, "info", 
+        function( username, repo_full_name, build_code, tr_id ) {
             console.log("chain_queries", repo_full_name, "hist", tr_id, repo_pos );
-            get_history(repo_full_name, tr_id, "hist", 
-                function( repo_full_name, build_code, tr_id) {
+            get_history(username, repo_full_name, null, tr_id, "hist", 
+                function( username, repo_full_name, build_code, tr_id) {
                     console.log("chain_queries", repo_full_name, "logs", tr_id, build_code, repo_pos );
-                    get_logs(repo_full_name, build_code, tr_id, "logs",call_next, call_next); 
+                    get_logs(username, repo_full_name, build_code, tr_id, "logs", call_next, call_next); 
                 } , call_next
             ); 
         }, call_next
@@ -177,7 +179,7 @@ function chain_queries( repo_full_names, repo_pos, clbk ) {
 }
 
 
-function get_info(repo_full_name, tr_id, type_name, clbk_success, clbk_failure) {
+function get_info(username, repo_full_name, build_code, tr_id, type_name, clbk_success, clbk_failure) {
     $.getJSON( "/info/"+repo_full_name+"/", 
         function( data ) {
             //console.log("info data", data);
@@ -190,8 +192,9 @@ function get_info(repo_full_name, tr_id, type_name, clbk_success, clbk_failure) 
             var info      = data.data;
             
             if (info) {
-                format_data(tr_id, type_name, info);
-                clbk_success(repo_full_name, null, tr_id);
+                DOCKER_DATA[username][repo_full_name][type_name] = info;
+                format_data( username, repo_full_name, build_code, tr_id, type_name, info);
+                clbk_success(username, repo_full_name, null      , tr_id);
                 
             } else {
                 console.log("no info", info, data.data);
@@ -202,7 +205,7 @@ function get_info(repo_full_name, tr_id, type_name, clbk_success, clbk_failure) 
 }
 
 
-function get_history(repo_full_name, tr_id, type_name, clbk_success, clbk_failure) {
+function get_history(username, repo_full_name, build_code, tr_id, type_name, clbk_success, clbk_failure) {
     $.getJSON( "/history/"+repo_full_name+"/", 
         function( data ) {
             //console.log("history data", data);
@@ -219,10 +222,10 @@ function get_history(repo_full_name, tr_id, type_name, clbk_success, clbk_failur
                 var last            = hist[0];
                 var last_build_code = last.build_code;
                 last.count          = hist_count;
-                last.repo_full_name = repo_full_name;
                 
-                format_data(tr_id, type_name, last);
-                clbk_success(repo_full_name, last_build_code, tr_id);
+                DOCKER_DATA[username][repo_full_name][type_name] = last;
+                format_data( username, repo_full_name, last_build_code, tr_id, type_name, last);
+                clbk_success(username, repo_full_name, last_build_code, tr_id);
 
             } else {
                 console.log("no last", hist, data.data);
@@ -233,7 +236,7 @@ function get_history(repo_full_name, tr_id, type_name, clbk_success, clbk_failur
 }
 
 
-function get_logs(repo_full_name, build_code, tr_id, type_name, clbk_success, clbk_failure) {
+function get_logs(username, repo_full_name, build_code, tr_id, type_name, clbk_success, clbk_failure) {
     $.getJSON( "/logs/"+repo_full_name+"/"+build_code+"/", 
         function( data ) {
             //console.log("log data", data);
@@ -246,34 +249,39 @@ function get_logs(repo_full_name, build_code, tr_id, type_name, clbk_success, cl
             var logs      = data.data.build_results;
             
             if (logs) {
-                format_data(tr_id, type_name, logs);
-                clbk_success(repo_full_name, build_code, tr_id);
+                DOCKER_DATA[username][repo_full_name][type_name] = logs;
+                format_data( username, repo_full_name, build_code, tr_id, type_name, logs);
+                clbk_success(username, repo_full_name, build_code, tr_id);
                 
             } else {
                 console.log("no logs", logs);
                 clbk_failure();
-                
             }
         }
     );
 }
 
 
-function format_data(tr_id, type_name, data) {
+function format_data(username, repo_full_name, build_code, tr_id, type_name, data) {
     //console.log("formatting data", tr_id, type_name, data);
     
     var type_cols = COL_NAMES[ COL_TYPES[ type_name ] ][2];
     //console.log("type_cols", type_cols);
     
+    data.username       = username;
+    data.repo_full_name = repo_full_name;
+    data.build_code     = build_code;
+    data.type_name      = type_name;
+    
     for ( var c in type_cols ) {
-        var col_data = type_cols[c];
-        var col_var  = col_data[0];
-        var col_name = col_data[1];
-        var col_proc = col_data[2];
+        var col_data     = type_cols[c];
+        var col_var_name = col_data[0];
+        var col_title    = col_data[1];
+        var col_proc     = col_data[2];
 
-        var val      = data[col_var];
-        var cell_id  = tr_id + "_" + type_name + "_" + col_var;
-        var val_pos  = col_proc(data, val);
+        var val      = data[col_var_name];
+        var cell_id  = tr_id + "_" + type_name + "_" + col_var_name;
+        var val_pos  = col_proc(data, col_var_name, col_title, val);
         
         //console.log(c, col_data, col_var, col_name, cell_id, val, val_pos);
         

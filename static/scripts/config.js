@@ -121,7 +121,8 @@ function format_date(d) {
     
     var str = hr + ':' + min + ' ' + day + '/' + mon + '/' + yr + ' UTC';
 
-    console.log(str);
+    //console.log(str);
+    
     return str;
 }
 

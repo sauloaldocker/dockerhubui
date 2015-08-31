@@ -10,7 +10,6 @@ var application_root = __dirname,
 	methodOverride   = require( 'method-override' ),
 	path             = require( 'path'            ),
     request          = require( 'request'         ),
-    requestCaching   = require( 'node-request-caching' ),
     serveStatic      = require( 'serve-static'    ),
 	serveFavicon     = require( 'serve-favicon'   );
 
@@ -32,7 +31,6 @@ app.mods.cookieParser     = cookieParser;
 app.mods.errorHandler     = errorHandler;
 app.mods.express          = express;
 app.mods.request          = request,
-app.mods.requestCaching   = requestCaching;
 app.mods.serveStatic      = serveStatic,
 app.mods.serveFavicon     = serveFavicon;
 

@@ -2,11 +2,11 @@
 
 
 $(document).ready(function(){
-    init();
+    init( finish );
 });
 
 
-function init() {
+function init( clbk ) {
     console.log('initing');
 
     var $container = $("#"+CONTAINER);
@@ -18,16 +18,20 @@ function init() {
         //console.log("checking user", username, userdata);
     }
     
-    var $tbl = $("<table/>", { "class": "repo_table" } );
+    var $tbl = $("<table/>", { "id": "repo_table", "class": "repo_table tablesorter" } );
     $tbl.appendTo($container);
 
-    var $th1  = $("<tr/>");
-    var $th2  = $("<tr/>");
+    var $thead = $("<thead/>");
+    var $tr1   = $("<tr/>"   );
+    var $tr2   = $("<tr/>"   );
+    var $tbody = $("<tbody/>");
     
-    $th1.appendTo($tbl);
-    $th2.appendTo($tbl);
+    $thead.appendTo($tbl  );
+    $tbody.appendTo($tbl  );
+    $tr1  .appendTo($thead);
+    $tr2  .appendTo($thead);
     
-    $th1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}));
+    $tr1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}));
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var type       = COL_NAMES[t];
@@ -35,19 +39,24 @@ function init() {
         var type_title = type[1];
         var type_cols  = type[2];
 
-        $("<th/>", {"class": "row_header", "html": type_title, "colspan":type_cols.length}).appendTo($th1);
+        $("<th/>", {"class": "row_header", "html": type_title, "colspan":type_cols.length}).appendTo($tr1);
 
         for ( var c = 0; c < type_cols.length; c++ ) {
             var col_data = type_cols[c];
             var col_var  = col_data[0];
             var col_name = col_data[1];
-            $("<th/>", {"class": "row_header", "html": col_name}).appendTo($th2);
+            $("<th/>", {"class": "row_header", "html": col_name}).appendTo($tr2);
         }
     }
 
-    chain_repos( usernames, 0, $tbl, function(){} );
+    chain_repos( usernames, 0, $tbody, clbk );
 }
 
+function finish() {
+    console.log("initing table sorter");
+    $("#repo_table").tablesorter(); 
+    console.log("table sorter initialized");
+}
 
 function chain_repos( usernames, repo_pos, $table, clbk ) {
     var username = usernames[repo_pos];

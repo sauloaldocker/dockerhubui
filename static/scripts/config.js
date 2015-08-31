@@ -71,7 +71,7 @@ var COL_NAMES = [
 
 // parsers to values (data, var_name, col_title, value)
 function default_function   (d, v, t, u) { return u; }
-function gen_link_buildcode (d, v, t, w) { var p = DOCKERHUB_URL + 'r/' + d.repo_full_name + '/builds/' + w + '/';                                   return '<a href="'+p+'">'+w+'</a>'; }
+function gen_link_buildcode (d, v, t, w) { var p = DOCKERHUB_URL + 'r/' + d.repo_full_name + '/builds/' + w + '/';                                   return '<span class="fixed_width"><a href="'+p+'">'+w+'</a></span>'; }
 function gen_link_source_url(d, v, t, x) { var x = x.replace('.git', '').replace(GIT_URL,''); var p = x + '/tree/' + d.source_branch + d.build_path; return '<a href="'+GIT_URL+p+'">'+x+'</a>'; }
 function make_pre           (d, v, t, y) {                                                                                                           return "<pre>"+y+"</pre>"; }
 function parse_date         (d, v, t, z) { return format_date(new Date(z)); }
@@ -119,7 +119,7 @@ function format_date(d) {
     hr  = hr  > 9 ? hr  : '0' + hr ;
     min = min > 9 ? min : '0' + min;
     
-    var str = hr + ':' + min + ' ' + day + '/' + mon + '/' + yr + ' UTC';
+    var str = yr + '-' + mon + '-' + day + ' ' + hr + ':' + min + ' UTC';
 
     //console.log(str);
     

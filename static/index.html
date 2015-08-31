@@ -13,6 +13,12 @@ body {
 	font-weight: 600;
 }
 
+
+header {
+	font-size: 30px;
+	font-weight: 900;
+}
+
 .fixed_width {
 	font-family: courier;
 }
@@ -132,17 +138,30 @@ a:hover {
 	width: 10px;
 	height: 10px;
 }
+
+
 </style>
 </head>
 
 <body>
-	
-<div id="hoverer" class="popup">
-	<button onclick="close_popup()">Close</button>
-	<div id="hoverer_inner" class="pre_content"></div>
-</div>
-<div id="mainContent"></div>
 
+	<header>Biodocker DockerHub Dashboard</header>
+		
+	<small>
+		<hr>
+		<a href="https://github.com/sauloal/dockerhubui">Fork DockeHub UI on GitHub</a> ||
+		<a href="https://github.com/sauloal">by Saulo Aflitos - 2015-2015</a> ||
+		<a href="https://github.com/sauloal/biodocker">Biodocker Project on GitHub</a>
+		<hr>
+	</small>
+	
+	<div id="hoverer" class="popup">
+		<button onclick="close_popup()">Close</button>
+		<div id="hoverer_inner" class="pre_content"></div>
+	</div>
+	
+	<div id="mainContent"></div>
+	
 </body>
 
 <script type="text/javascript" src="scripts/url.min.js"></script>
@@ -150,5 +169,6 @@ a:hover {
 <script type="text/javascript" src="scripts/jquery.tablesorter.min.js"></script> 
 <script type="text/javascript" src="scripts/config.js"></script>
 <script type="text/javascript" src="scripts/init.js"></script>
+
 
 </html>

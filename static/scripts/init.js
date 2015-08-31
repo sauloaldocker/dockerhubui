@@ -31,7 +31,7 @@ function init( clbk ) {
     $tr1  .appendTo($thead);
     $tr2  .appendTo($thead);
     
-    $tr1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}));
+    $tr1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}).append($('<img>', {'src': 'images/arrows.png', 'class': 'arrows'})));
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var type       = COL_NAMES[t];
@@ -45,7 +45,7 @@ function init( clbk ) {
             var col_data = type_cols[c];
             var col_var  = col_data[0];
             var col_name = col_data[1];
-            $("<th/>", {"class": "row_header", "html": col_name}).appendTo($tr2);
+            $("<th/>", {"class": "row_header", "html": col_name}).append($('<img>', {'src': 'images/arrows.png', 'class': 'arrows'})).appendTo($tr2);
         }
     }
 

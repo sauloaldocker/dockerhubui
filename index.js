@@ -1,6 +1,5 @@
 var ip                 = process.env.IP   || "0.0.0.0";
 var port               = process.env.PORT || 8080;
-//var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT | 600;
 
 var application_root = __dirname,
     bodyParser       = require( 'body-parser'     ),

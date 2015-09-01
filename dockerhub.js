@@ -1,5 +1,5 @@
 var request = require( 'request'  );
-var time    = require('time');
+var time    = require('time'      );
 
 /*
  * WEB HUB API
@@ -17,7 +17,7 @@ var caches = {
     "histo": {},
     "logs" : {}
 };
-var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT | 600;
+var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT || 600;
 
 
 function check_cache(key, type) {

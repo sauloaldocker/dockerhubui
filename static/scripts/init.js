@@ -8,6 +8,8 @@ $(document).ready(function(){
 
 function init( clbk ) {
     console.log('initing');
+    
+    get_usage();
 
     var $container = $("#"+CONTAINER);
     
@@ -56,6 +58,20 @@ function finish() {
     console.log("initing table sorter");
     $("#repo_table").tablesorter(); 
     console.log("table sorter initialized");
+}
+
+function get_usage() {
+    console.log("getting usage data");
+    $.getJSON( "/usage/", 
+        function(data) {
+            console.log("got usage:", data);
+            var num_sessions = data.num_sessions;
+            var num_views    = data.num_views;
+            
+            document.getElementById("num_sessions").innerHTML = num_sessions;
+            document.getElementById("num_views"   ).innerHTML = num_views;
+        }
+    );
 }
 
 function chain_repos( usernames, repo_pos, $table, clbk ) {

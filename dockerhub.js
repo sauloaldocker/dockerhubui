@@ -1,4 +1,5 @@
-var request  = require( 'request'  );
+var request = require( 'request'  );
+var time    = require('time');
 
 /*
  * WEB HUB API
@@ -8,7 +9,7 @@ var request  = require( 'request'  );
 //https://hub.docker.com/v2/repositories/sauloal/lamp/buildhistory/
 //https://hub.docker.com/v2/repositories/sauloal/lamp/buildhistory/bmotlodzftpxygxsdx4wxjc/
 
-var time = require('time');
+
 
 var caches = {
     "repos": {},
@@ -16,7 +17,7 @@ var caches = {
     "histo": {},
     "logs" : {}
 };
-var CACHE_TIMEOUT = 600;
+var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT | 600;
 
 
 function check_cache(key, type) {

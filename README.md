@@ -35,8 +35,8 @@ var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT || 600;
  - /usage/                                 - Server statistics
 
 ## DockerHub Endpoints used
- - https://hub.docker.com/v2/repositories/<username>/
- - https://hub.docker.com/v2/repositories/<username>/<repository>/
- - https://hub.docker.com/v2/repositories/<username>/<repository>/buildhistory/
- - https://hub.docker.com/v2/repositories/<username>/<repository>/buildhistory/<build id>/
+ - ```https://hub.docker.com/v2/repositories/<username>/```
+ - ```https://hub.docker.com/v2/repositories/<username>/<repository>/```
+ - ```https://hub.docker.com/v2/repositories/<username>/<repository>/buildhistory/```
+ - ```https://hub.docker.com/v2/repositories/<username>/<repository>/buildhistory/<build id>/```
 

@@ -87,6 +87,8 @@ app.get(    '/repos/:username/'                      , getters.get_repos        
 app.get(    '/info/:username/:reponame/'             , getters.get_repo_info    );
 app.get(    '/history/:username/:reponame/'          , getters.get_repo_history );
 app.get(    '/logs/:username/:reponame/:build_code/' , getters.get_build_log    );
+app.get(    '/update/'                               , getters.update           );
+
 
 exports.app      = app;
 

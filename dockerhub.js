@@ -1,5 +1,5 @@
-var request = require( 'request'  );
-var time    = require('time'      );
+var request = require( 'request' );
+var time    = require( 'time'    );
 
 /*
  * WEB HUB API
@@ -17,8 +17,16 @@ var caches = {
     "histo": {},
     "logs" : {}
 };
+
 var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT || 600;
 
+
+function clean_cache() {
+    for ( var c in caches ) {
+        console.log("cleaning cache", c);
+        caches[caches] = {};
+    }
+}
 
 function check_cache(key, type) {
     if (CACHE_TIMEOUT == 0){
@@ -46,11 +54,13 @@ function check_cache(key, type) {
 }
 
 
-function get_repos(username, clbk) {
-    var val = check_cache(username, 'repos');
-    if ( val ) {
-        clbk(val);
-        return;
+function get_repos(username, no_cache, clbk) {
+    if (!no_cache) {
+        var val = check_cache(username, 'repos');
+        if ( val ) {
+            clbk(val);
+            return;
+        }
     }
 
     request.get({"url": "https://hub.docker.com/v2/repositories/"+username+"/?page_size=1000", "json": true},
@@ -79,11 +89,13 @@ function get_repos(username, clbk) {
 }
 
 
-function get_repo_info(repo_name, clbk) {
-    var val = check_cache(repo_name, 'info');
-    if ( val ) {
-        clbk(val);
-        return;
+function get_repo_info(repo_name, no_cache, clbk) {
+    if (!no_cache) {
+        var val = check_cache(repo_name, 'info');
+        if ( val ) {
+            clbk(val);
+            return;
+        }
     }
     
     request.get({"url": "https://hub.docker.com/v2/repositories/"+repo_name+"/?page_size=1000", "json": true},
@@ -123,13 +135,15 @@ function get_repo_info(repo_name, clbk) {
 }
 
 
-function get_build_history(repo_name, clbk) {
-    var val = check_cache(repo_name, 'histo');
-    if ( val ) {
-        clbk(val);
-        return;
+function get_build_history(repo_name, no_cache, clbk) {
+    if (!no_cache) {
+        var val = check_cache(repo_name, 'histo');
+        if ( val ) {
+            clbk(val);
+            return;
+        }
     }
-
+    
     request.get({"url": "https://hub.docker.com/v2/repositories/"+repo_name+"/buildhistory/?page_size=1000", "json": true},
         function (error, response, build_history) {
             if (error) {
@@ -165,11 +179,13 @@ function get_build_history(repo_name, clbk) {
 }
 
 
-function get_build_log(repo_name, build_id, clbk) {
-    var val = check_cache(repo_name + "_" + build_id, 'logs');
-    if ( val ) {
-        clbk(val);
-        return;
+function get_build_log(repo_name, build_id, no_cache, clbk) {
+    if (!no_cache) {
+        var val = check_cache(repo_name + "_" + build_id, 'logs');
+        if ( val ) {
+            clbk(val);
+            return;
+        }
     }
 
     request.get({"url": "https://hub.docker.com/v2/repositories/"+repo_name+"/buildhistory/"+build_id+"/", "json": true},
@@ -422,5 +438,6 @@ exports.get_repos         = get_repos;
 exports.get_repo_info     = get_repo_info;
 exports.get_build_history = get_build_history;
 exports.get_build_log     = get_build_log;
+exports.clean_cache       = clean_cache;
 exports.webhook_callback  = webhook_callback;
 exports.API               = API;

@@ -3,6 +3,19 @@
 
 $(document).ready(function(){
     init( finish );
+
+    $("#reload").click(
+        function() {
+            $.getJSON( "/update/", function(data){
+                console.log("updated");
+                $("#reload_label").html("reloaded");
+                $("#reload_label").delay(1000).fadeOut('normal', function() {
+                    $(this).html('');
+                    $(this).fadeIn('fast');
+                });
+            });
+        }
+    );
 });
 
 
@@ -33,7 +46,7 @@ function init( clbk ) {
     $tr1  .appendTo($thead);
     $tr2  .appendTo($thead);
     
-    $tr1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}).append($('<img>', {'src': 'images/arrows.png', 'class': 'arrows'})));
+    $tr1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}).append($('<img>', {'src': 'images/sort.svg', 'class': 'arrows'})));
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var type       = COL_NAMES[t];
@@ -47,7 +60,7 @@ function init( clbk ) {
             var col_data = type_cols[c];
             var col_var  = col_data[0];
             var col_name = col_data[1];
-            $("<th/>", {"class": "row_header", "html": col_name}).append($('<img>', {'src': 'images/arrows.png', 'class': 'arrows'})).appendTo($tr2);
+            $("<th/>", {"class": "row_header", "html": col_name}).append($('<img>', {'src': 'images/sort.svg', 'class': 'arrows'})).appendTo($tr2);
         }
     }
 

@@ -24,7 +24,7 @@ var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT || 600;
 function clean_cache() {
     for ( var c in caches ) {
         console.log("cleaning cache", c);
-        caches[caches] = {};
+        caches[c] = {};
     }
 }
 
@@ -55,8 +55,9 @@ function check_cache(key, type) {
 
 
 function get_repos(username, no_cache, clbk) {
+    var cache_name = 'repos';
     if (!no_cache) {
-        var val = check_cache(username, 'repos');
+        var val = check_cache(username, cache_name);
         if ( val ) {
             clbk(val);
             return;
@@ -81,8 +82,9 @@ function get_repos(username, no_cache, clbk) {
 
             //{"next": "https://hub.docker.com/v2/repositories/sauloal/?page=2", "previous": null, "results": [{"user": "sauloal", "name": "kivy", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 38, "last_updated": "2014-04-23T16:54:03Z"}, {"user": "sauloal", "name": "gateone", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 12, "last_updated": "2014-09-10T22:17:30.239514Z"}, {"user": "sauloal", "name": "ajenti", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 50, "last_updated": "2014-09-12T22:27:59.454820Z"}, {"user": "sauloal", "name": "shipyard", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T21:26:50Z"}, {"user": "sauloal", "name": "shipyardauto", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 14, "last_updated": "2014-07-08T21:48:06Z"}, {"user": "sauloal", "name": "supervisor", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 19, "last_updated": "2014-07-08T22:22:31Z"}, {"user": "sauloal", "name": "allbio", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 10, "last_updated": "2014-07-08T23:09:50Z"}, {"user": "sauloal", "name": "mongo", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T22:53:45Z"}, {"user": "sauloal", "name": "mongoapi", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 24, "last_updated": "2014-07-08T23:15:43Z"}, {"user": "sauloal", "name": "mongoapistats", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-13T14:53:49Z"}]}
             
-            caches.repos[username] = [new time.Date(), repos];
-            
+            var cache_time = new time.Date();
+            caches[cache_name][username] = [cache_time, repos];
+            repos.cache_time = cache_time;
             clbk(repos);
         }
     );
@@ -90,8 +92,9 @@ function get_repos(username, no_cache, clbk) {
 
 
 function get_repo_info(repo_name, no_cache, clbk) {
+    var cache_name = 'info';
     if (!no_cache) {
-        var val = check_cache(repo_name, 'info');
+        var val = check_cache(repo_name, cache_name);
         if ( val ) {
             clbk(val);
             return;
@@ -113,9 +116,11 @@ function get_repo_info(repo_name, no_cache, clbk) {
             console.log("success getting build info", response.request.uri.path);
             //console.log("success getting build info", response.headers);
 
-            caches.info[repo_name] = [new time.Date(), build_info];
-
-            clbk(build_info);
+            var cache_time = new time.Date();
+            caches[cache_name][repo_name] = [cache_time, build_info];
+            build_info.cache_time = cache_time;
+            
+            clbk( build_info );
 
             // { user: 'sauloal',
             //	name: 'introgressionbrowser',
@@ -136,8 +141,9 @@ function get_repo_info(repo_name, no_cache, clbk) {
 
 
 function get_build_history(repo_name, no_cache, clbk) {
+    var cache_name = 'histo';
     if (!no_cache) {
-        var val = check_cache(repo_name, 'histo');
+        var val = check_cache(repo_name, cache_name);
         if ( val ) {
             clbk(val);
             return;
@@ -160,7 +166,9 @@ function get_build_history(repo_name, no_cache, clbk) {
             //console.log("success getting build history", response.request.uri.path, build_history);
             //console.log("success getting build history", response);
 
-            caches.histo[repo_name] = [new time.Date(), build_history];
+            var cache_time = new time.Date();
+            caches[cache_name][repo_name] = [cache_time, build_history];
+            build_history.cache_time = cache_time;
 
             clbk(build_history);
 
@@ -180,8 +188,9 @@ function get_build_history(repo_name, no_cache, clbk) {
 
 
 function get_build_log(repo_name, build_id, no_cache, clbk) {
+    var cache_name = 'logs';
     if (!no_cache) {
-        var val = check_cache(repo_name + "_" + build_id, 'logs');
+        var val = check_cache(repo_name + "_" + build_id, cache_name);
         if ( val ) {
             clbk(val);
             return;
@@ -204,7 +213,9 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
             //console.log("success getting build log:", build_log, response.request.uri.path);
             //console.log("success getting build log:", response.headers);
     
-            caches.logs[repo_name + "_" + build_id] = [new time.Date(), build_log];
+            var cache_time = new time.Date();
+            caches[cache_name][repo_name + "_" + build_id] = [cache_time, build_log];
+            build_log.cache_time = cache_time;
     
             clbk(build_log);
             //{ id: 1785682,

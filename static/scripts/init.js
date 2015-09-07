@@ -12,6 +12,9 @@ $(document).ready(function(){
                 $("#reload_label").delay(1000).fadeOut('normal', function() {
                     $(this).html('');
                     $(this).fadeIn('fast');
+                    var $container = $("#"+CONTAINER);
+                    $container.html('');
+                    init();
                 });
             });
         }
@@ -47,6 +50,7 @@ function init( clbk ) {
     $tr2  .appendTo($thead);
     
     $tr1.append($("<th/>", { "html": "Repository Name", "rowspan": 2}).append($('<img>', {'src': 'images/sort.svg', 'class': 'arrows'})));
+    $tr1.append($("<th/>", { "html": "Cache Time"     , "rowspan": 2}).append($('<img>', {'src': 'images/sort.svg', 'class': 'arrows'})));
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var type       = COL_NAMES[t];
@@ -117,8 +121,9 @@ function get_repos(username, $container, clbk) {
                 return;
             }
             
-            var repos     = data.data.results;
-            var num_repos = repos.length;
+            var repos      = data.data.results;
+            var cache_time = data.data.cache_time;
+            var num_repos  = repos.length;
             
             if ( num_repos == 0 ) {
                 clbk();
@@ -151,6 +156,12 @@ function get_repos(username, $container, clbk) {
                     "id": tr_id+"_name",
                 }).html('<a href="'+DOCKERHUB_URL+'u/'+repo_space+'/">'+repo_space+'</a> / <a href="'+DOCKERHUB_URL+'r/'+repo_space+'/'+repo_name+'/">'+repo_name+'</a>').appendTo($repo_tr);
                 
+                
+                $( "<td/>", {
+                    "class": "cache_time",
+                    "id": tr_id+"_cache_time",
+                }).html(parse_date(null,null,null,cache_time)).appendTo($repo_tr);
+
 
                 for ( var t = 0; t < COL_NAMES.length; t++ ) {
                     var type       = COL_NAMES[t];

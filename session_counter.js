@@ -23,6 +23,9 @@ function init(app) {
     app.use(session_keeper);
 
     app.get(    '/usage/'                                , get_usage);
+
+    NUM_SESSIONS = get_num_sessions_sync();
+    NUM_VIEWS    = get_num_views_sync();
 }
 
 
@@ -59,8 +62,20 @@ function get_usage(req,res) {
 }
 
 
+function get_num_sessions(clbk) {
+    storage.getItem('num_sessions', clbk);
+}
+
+function get_num_sessions_sync() {
+    return storage.getItemSync('num_sessions') || 0;
+}
+
+function set_num_sessions(clbk) {
+    storage.setItem('num_sessions');
+}
+
 function add_session() {
-    storage.getItem('num_sessions', 
+    get_num_sessions(
         function(err, num_sessions) {
             if (err) {
                 console.log("error getting num_sessions", num_sessions);
@@ -69,7 +84,7 @@ function add_session() {
             if (!num_sessions) {
                 num_sessions = 0;
             }
-            storage.setItem('num_sessions',num_sessions+1,
+            set_num_sessions(num_sessions+1,
                 function (err) {
                     if (!err) {
                         NUM_SESSIONS = num_sessions+1;
@@ -83,8 +98,20 @@ function add_session() {
     );
 }
 
+function get_num_views(clbk) {
+    storage.getItem('num_views', clbk);
+}
+
+function get_num_views_sync() {
+    return storage.getItemSync('num_views') || 0;
+}
+
+function set_num_views(clbk) {
+    storage.setItem('num_views', clbk);
+}
+
 function add_view() {
-    storage.getItem('num_views', 
+    get_num_views(
         function(err, num_views) {
             if (err) {
                 console.log("error getting num_views", err);
@@ -94,7 +121,7 @@ function add_view() {
                 num_views = 0;
             }
             console.log("got num_views", num_views);
-            storage.setItem('num_views',num_views+1, 
+            set_num_views( num_views+1, 
                 function(err) {
                     if (!err) {
                         console.log("set num_views", num_views+1);

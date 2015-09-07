@@ -1,5 +1,5 @@
 var request = require( 'request' );
-var time    = require( 'time'    );
+//var time    = require( 'time'    );
 
 /*
  * WEB HUB API
@@ -18,8 +18,8 @@ var caches = {
     "logs" : {}
 };
 
-var CACHE_TIMEOUT = process.env.CACHE_TIMEOUT || 600;
-
+var CACHE_TIMEOUT_SECS = process.env.CACHE_TIMEOUT_SECS || 6000; //60 = 1 min 600 = 10 min 6000 1h
+var CACHE_TIMEOUT      = CACHE_TIMEOUT_SECS * 1000;
 
 function clean_cache() {
     for ( var c in caches ) {
@@ -33,23 +33,27 @@ function check_cache(key, type) {
         return null;
     }
     
-    var ch = caches[type];
+    var ch   = caches[type];
+    var now  = (new Date()).getTime();
     
     if ( key in ch ) {
         var ctm  = ch[key][0];
         var val  = ch[key][1];
-        var now  = new time.Date();
-        var diff = ctm - now;
+        var diff = now - ctm;
+
         if ( diff < CACHE_TIMEOUT ) {
-            console.log("found cache", key, type);
+            console.log("found cache", 'key', key, 'type', type, 'ctm', ctm, 'now', now, 'timeout', CACHE_TIMEOUT, 'diff', diff);
             return val;
+        
         } else {
-            console.log("cache timedout", key, type);
+            console.log("cache timedout", key, type, 'ctm', ctm, 'now', now, 'timeout', CACHE_TIMEOUT, 'diff', diff);
             return null;
+
         }
     } else {
-        console.log("missed cache", key, type);
+        console.log("missed cache", key, type, 'ctm', ctm, 'now', now, 'timeout', CACHE_TIMEOUT, 'diff', diff);
         return null;
+        
     }
 }
 
@@ -82,7 +86,7 @@ function get_repos(username, no_cache, clbk) {
 
             //{"next": "https://hub.docker.com/v2/repositories/sauloal/?page=2", "previous": null, "results": [{"user": "sauloal", "name": "kivy", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 38, "last_updated": "2014-04-23T16:54:03Z"}, {"user": "sauloal", "name": "gateone", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 12, "last_updated": "2014-09-10T22:17:30.239514Z"}, {"user": "sauloal", "name": "ajenti", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 50, "last_updated": "2014-09-12T22:27:59.454820Z"}, {"user": "sauloal", "name": "shipyard", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T21:26:50Z"}, {"user": "sauloal", "name": "shipyardauto", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 14, "last_updated": "2014-07-08T21:48:06Z"}, {"user": "sauloal", "name": "supervisor", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 19, "last_updated": "2014-07-08T22:22:31Z"}, {"user": "sauloal", "name": "allbio", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 10, "last_updated": "2014-07-08T23:09:50Z"}, {"user": "sauloal", "name": "mongo", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T22:53:45Z"}, {"user": "sauloal", "name": "mongoapi", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 24, "last_updated": "2014-07-08T23:15:43Z"}, {"user": "sauloal", "name": "mongoapistats", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-13T14:53:49Z"}]}
             
-            var cache_time = new time.Date();
+            var cache_time = (new Date()).getTime();
             caches[cache_name][username] = [cache_time, repos];
             repos.cache_time = cache_time;
             clbk(repos);
@@ -116,7 +120,7 @@ function get_repo_info(repo_name, no_cache, clbk) {
             console.log("success getting build info", response.request.uri.path);
             //console.log("success getting build info", response.headers);
 
-            var cache_time = new time.Date();
+            var cache_time = (new Date()).getTime();
             caches[cache_name][repo_name] = [cache_time, build_info];
             build_info.cache_time = cache_time;
             
@@ -166,7 +170,7 @@ function get_build_history(repo_name, no_cache, clbk) {
             //console.log("success getting build history", response.request.uri.path, build_history);
             //console.log("success getting build history", response);
 
-            var cache_time = new time.Date();
+            var cache_time = (new Date()).getTime();
             caches[cache_name][repo_name] = [cache_time, build_history];
             build_history.cache_time = cache_time;
 
@@ -213,7 +217,7 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
             //console.log("success getting build log:", build_log, response.request.uri.path);
             //console.log("success getting build log:", response.headers);
     
-            var cache_time = new time.Date();
+            var cache_time = (new Date()).getTime();
             caches[cache_name][repo_name + "_" + build_id] = [cache_time, build_log];
             build_log.cache_time = cache_time;
     

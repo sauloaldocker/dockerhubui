@@ -11,7 +11,9 @@ function init(app) {
     app.mods.cookieSession    = cookieSession;
     app.mods.storage          = storage;
     
-    storage.initSync({dir:'tmp/', ttl: false});
+    var tmp_folder = 'tmp/';
+    console.log('tmp_folder', tmp_folder);
+    storage.initSync({dir: tmp_folder, ttl: false, loggin: true});
 
     app.use(cookieParser('ILuvCookies'))
     app.use(cookieSession({
@@ -26,6 +28,9 @@ function init(app) {
 
     NUM_SESSIONS = get_num_sessions_sync();
     NUM_VIEWS    = get_num_views_sync();
+    
+    console.log('NUM_SESSIONS', NUM_SESSIONS);
+    console.log('NUM_VIEWS'   , NUM_VIEWS   );
 }
 
 
@@ -70,27 +75,29 @@ function get_num_sessions_sync() {
     return storage.getItemSync('num_sessions') || 0;
 }
 
-function set_num_sessions(clbk) {
-    storage.setItem('num_sessions');
+function set_num_sessions(val, clbk) {
+    storage.setItem('num_sessions', val, clbk);
 }
 
 function add_session() {
+    console.log('adding session');
     get_num_sessions(
         function(err, num_sessions) {
             if (err) {
-                console.log("error getting num_sessions", num_sessions);
+                console.log("adding session :: error getting num_sessions", num_sessions);
                 return;
             }
             if (!num_sessions) {
+                console.log("adding session :: no num_sessions", num_sessions);
                 num_sessions = 0;
             }
             set_num_sessions(num_sessions+1,
                 function (err) {
                     if (!err) {
                         NUM_SESSIONS = num_sessions+1;
-                        console.log("new session", num_sessions+1);
+                        console.log("adding session :: new session", num_sessions+1);
                     } else {
-                        console.error("error adding num_sessions", err);
+                        console.error("adding session :: error adding num_sessions", err);
                     }
                 }
             );
@@ -106,28 +113,30 @@ function get_num_views_sync() {
     return storage.getItemSync('num_views') || 0;
 }
 
-function set_num_views(clbk) {
-    storage.setItem('num_views', clbk);
+function set_num_views(val, clbk) {
+    storage.setItem('num_views', val, clbk);
 }
 
 function add_view() {
+    console.log('adding view');
     get_num_views(
         function(err, num_views) {
             if (err) {
-                console.log("error getting num_views", err);
+                console.log("adding view :: error getting num_views", err);
                 return;
             }
             if (!num_views) {
+                console.log("adding view :: no num_views", err);
                 num_views = 0;
             }
-            console.log("got num_views", num_views);
+            console.log("adding view :: got num_views", num_views);
             set_num_views( num_views+1, 
                 function(err) {
                     if (!err) {
-                        console.log("set num_views", num_views+1);
+                        console.log("adding view :: set num_views", num_views+1);
                         NUM_VIEWS = num_views+1;
                     } else {
-                        console.error("error adding num_views", err);
+                        console.error("adding view :: error adding num_views", err);
                     }
                 }
             );

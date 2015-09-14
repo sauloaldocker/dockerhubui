@@ -24,7 +24,7 @@ app.conf.ip               = ip;
 app.conf.DOCKERHUB_URL    = DOCKERHUB_URL;
 app.conf.DEBUG            = DEBUG;
 
-app.mods = {}
+app.mods                  = {};
 app.mods.console          = console;
 app.mods.express          = express;
 app.mods.request          = request;

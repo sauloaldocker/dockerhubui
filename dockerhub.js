@@ -1,5 +1,5 @@
-var request = require( 'request' );
-//var time    = require( 'time'    );
+var request = require( 'request'    );
+var cache   = require( './cache.js' );
 
 /*
  * WEB HUB API
@@ -9,59 +9,17 @@ var request = require( 'request' );
 //https://hub.docker.com/v2/repositories/sauloal/lamp/buildhistory/
 //https://hub.docker.com/v2/repositories/sauloal/lamp/buildhistory/bmotlodzftpxygxsdx4wxjc/
 
+var CACHE_TIMEOUT_MINUTES = process.env.CACHE_TIMEOUT_MINUTES || 1440; //60 = 1h 1440 = 1 day
+var CACHE_TIMEOUT         = CACHE_TIMEOUT_MINUTES * 1000 * 60;
 
-
-var caches = {
-    "repos": {},
-    "info" : {},
-    "histo": {},
-    "logs" : {}
-};
-
-var CACHE_TIMEOUT_SECS = process.env.CACHE_TIMEOUT_SECS || 6000; //60 = 1 min 600 = 10 min 6000 1h
-var CACHE_TIMEOUT      = CACHE_TIMEOUT_SECS * 1000;
-
-function clean_cache() {
-    for ( var c in caches ) {
-        console.log("cleaning cache", c);
-        caches[c] = {};
-    }
-}
-
-function check_cache(key, type) {
-    if (CACHE_TIMEOUT == 0){
-        return null;
-    }
-    
-    var ch   = caches[type];
-    var now  = (new Date()).getTime();
-    
-    if ( key in ch ) {
-        var ctm  = ch[key][0];
-        var val  = ch[key][1];
-        var diff = now - ctm;
-
-        if ( diff < CACHE_TIMEOUT ) {
-            console.log("found cache", 'key', key, 'type', type, 'ctm', ctm, 'now', now, 'timeout', CACHE_TIMEOUT, 'diff', diff);
-            return val;
-        
-        } else {
-            console.log("cache timedout", key, type, 'ctm', ctm, 'now', now, 'timeout', CACHE_TIMEOUT, 'diff', diff);
-            return null;
-
-        }
-    } else {
-        console.log("missed cache", key, type, 'ctm', ctm, 'now', now, 'timeout', CACHE_TIMEOUT, 'diff', diff);
-        return null;
-        
-    }
-}
+var cacher = new cache.cache(CACHE_TIMEOUT);
 
 
 function get_repos(username, no_cache, clbk) {
     var cache_name = 'repos';
+    var cache_key  = username;
     if (!no_cache) {
-        var val = check_cache(username, cache_name);
+        var val = cacher.get(cache_name, cache_key);
         if ( val ) {
             clbk( true, val );
             return;
@@ -87,7 +45,7 @@ function get_repos(username, no_cache, clbk) {
             //{"next": "https://hub.docker.com/v2/repositories/sauloal/?page=2", "previous": null, "results": [{"user": "sauloal", "name": "kivy", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 38, "last_updated": "2014-04-23T16:54:03Z"}, {"user": "sauloal", "name": "gateone", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 12, "last_updated": "2014-09-10T22:17:30.239514Z"}, {"user": "sauloal", "name": "ajenti", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 50, "last_updated": "2014-09-12T22:27:59.454820Z"}, {"user": "sauloal", "name": "shipyard", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T21:26:50Z"}, {"user": "sauloal", "name": "shipyardauto", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 14, "last_updated": "2014-07-08T21:48:06Z"}, {"user": "sauloal", "name": "supervisor", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 19, "last_updated": "2014-07-08T22:22:31Z"}, {"user": "sauloal", "name": "allbio", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 10, "last_updated": "2014-07-08T23:09:50Z"}, {"user": "sauloal", "name": "mongo", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T22:53:45Z"}, {"user": "sauloal", "name": "mongoapi", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 24, "last_updated": "2014-07-08T23:15:43Z"}, {"user": "sauloal", "name": "mongoapistats", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-13T14:53:49Z"}]}
             
             var cache_time = (new Date()).getTime();
-            caches[cache_name][username] = [cache_time, repos];
+            cacher.set(cache_name, cache_key, repos);
             repos.cache_time = cache_time;
             clbk( false, repos );
         }
@@ -97,8 +55,9 @@ function get_repos(username, no_cache, clbk) {
 
 function get_repo_info(repo_name, no_cache, clbk) {
     var cache_name = 'info';
+    var cache_key  = repo_name;
     if (!no_cache) {
-        var val = check_cache(repo_name, cache_name);
+        var val = cacher.get(cache_name, cache_key);
         if ( val ) {
             clbk( true, val );
             return;
@@ -121,7 +80,7 @@ function get_repo_info(repo_name, no_cache, clbk) {
             //console.log("success getting build info", response.headers);
 
             var cache_time = (new Date()).getTime();
-            caches[cache_name][repo_name] = [cache_time, build_info];
+            cacher.set(cache_name, cache_key, build_info);
             build_info.cache_time = cache_time;
             
             clbk( false, build_info );
@@ -146,8 +105,9 @@ function get_repo_info(repo_name, no_cache, clbk) {
 
 function get_build_history(repo_name, no_cache, clbk) {
     var cache_name = 'histo';
+    var cache_key  = repo_name;
     if (!no_cache) {
-        var val = check_cache(repo_name, cache_name);
+        var val = cacher.get(cache_name, cache_key);
         if ( val ) {
             clbk( true, val );
             return;
@@ -171,7 +131,7 @@ function get_build_history(repo_name, no_cache, clbk) {
             //console.log("success getting build history", response);
 
             var cache_time = (new Date()).getTime();
-            caches[cache_name][repo_name] = [cache_time, build_history];
+            cacher.set(cache_name, cache_key, build_history);
             build_history.cache_time = cache_time;
 
             clbk( false, build_history );
@@ -193,8 +153,9 @@ function get_build_history(repo_name, no_cache, clbk) {
 
 function get_build_log(repo_name, build_id, no_cache, clbk) {
     var cache_name = 'logs';
+    var cache_key  = repo_name + "_" + build_id;
     if (!no_cache) {
-        var val = check_cache(repo_name + "_" + build_id, cache_name);
+        var val = cacher.get(cache_name, cache_key);
         if ( val ) {
             clbk( true, val );
             return;
@@ -218,7 +179,7 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
             //console.log("success getting build log:", response.headers);
     
             var cache_time = (new Date()).getTime();
-            caches[cache_name][repo_name + "_" + build_id] = [cache_time, build_log];
+            cacher.set(cache_name, cache_key, build_log);
             build_log.cache_time = cache_time;
     
             clbk( false, build_log );
@@ -313,7 +274,7 @@ function _API_init_repo_token(clbk) {
 				clbk(null);
 			}
 			if (response.headers['content-type'] != "application/json") {
-				console.log("error getting endpoint. wrong type", response.headers['content-type'], body);
+				console.log("error getting endpoint. wrong type", response.headers['content-type'], response);
 				clbk(null);
 			}
 			console.log("success getting endpoint", response.request.uri.path);
@@ -375,7 +336,7 @@ function _API_get_repo_tag_img_id(tag_name, clbk) {
                 clbk(null);
             }
             console.log("success getting build tag img id", response.request.uri.path, img_id);
-            clbk(img_id)
+            clbk(img_id);
         }
     );
 }
@@ -453,6 +414,6 @@ exports.get_repos         = get_repos;
 exports.get_repo_info     = get_repo_info;
 exports.get_build_history = get_build_history;
 exports.get_build_log     = get_build_log;
-exports.clean_cache       = clean_cache;
+exports.cacher            = cacher;
 exports.webhook_callback  = webhook_callback;
 exports.API               = API;

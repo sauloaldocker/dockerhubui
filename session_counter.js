@@ -1,7 +1,9 @@
 var    cookieParser     = require( 'cookie-parser'   ),
        cookieSession    = require( 'cookie-session'  ),
        storage          = require( 'node-persist'    ),
-	   time             = require( 'time'            );
+	   time             = require( 'time'            ),
+	   path             = require( 'path'            )
+	   ;
 	
 var NUM_VIEWS    = 0;
 var NUM_SESSIONS = 0;
@@ -11,7 +13,7 @@ function init(app) {
     app.mods.cookieSession    = cookieSession;
     app.mods.storage          = storage;
     
-    var tmp_folder = 'tmp/';
+    var tmp_folder = path.join( __dirname, 'storage' );
     console.log('tmp_folder', tmp_folder);
     storage.initSync({dir: tmp_folder, ttl: false, loggin: true});
 
@@ -25,7 +27,7 @@ function init(app) {
         )
     );
 
-    app.set('trust proxy', 1) // trust first proxy
+    app.set('trust proxy', 1); // trust first proxy
     
     app.use(session_keeper);
 
@@ -44,7 +46,7 @@ function session_keeper(req, res, next) {
   // Update views
   if (req.url == '/') {
     //console.log("req url", req.url);
-    req.session.views = (req.session.views || 0) + 1
+    req.session.views = (req.session.views || 0) + 1;
     //console.log("req", req);
     //console.log("req session", JSON.stringify(req.session));
     //console.log("req session views", req.session.views);

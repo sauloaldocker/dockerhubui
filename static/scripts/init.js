@@ -1,5 +1,11 @@
 // JavaScript File
-
+/* global CONTAINER     */
+/* global DOCKER_DATA   */
+/* global COL_NAMES     */
+/* global DEBUG         */
+/* global DOCKERHUB_URL */
+/* global parse_date    */
+/* global COL_TYPES     */
 
 $(document).ready(function(){
     init( finish );
@@ -54,7 +60,7 @@ function init( clbk ) {
 
     for ( var t = 0; t < COL_NAMES.length; t++ ) {
         var type       = COL_NAMES[t];
-        var type_name  = type[0];
+        //var type_name  = type[0];
         var type_title = type[1];
         var type_cols  = type[2];
 
@@ -62,7 +68,7 @@ function init( clbk ) {
 
         for ( var c = 0; c < type_cols.length; c++ ) {
             var col_data = type_cols[c];
-            var col_var  = col_data[0];
+            //var col_var  = col_data[0];
             var col_name = col_data[1];
             $("<th/>", {"class": "row_header", "html": col_name}).append($('<img>', {'src': 'images/sort.svg', 'class': 'arrows'})).appendTo($tr2);
         }
@@ -132,17 +138,19 @@ function get_repos(username, $container, clbk) {
             
             repos.sort(compare_info);
             
-            if ( DEBUG )  { repos = [ repos[2] ] };
+            if ( DEBUG )  { repos = [ repos[2] ] }
             
             var repo_full_names = [];
             for ( var r in repos ) {
-                var s              = parseInt(r)+1;
                 var repo           = repos[r];
                 var repo_name      = repo.name;
                 var repo_space     = repo.namespace;
                 var repo_full_name = repo_space + "/" + repo_name;
                 
-                //console.log("getting repo #", s , "/", num_repos, repo_full_name);
+                /*
+                var s              = parseInt(r)+1;
+                console.log("getting repo #", s , "/", num_repos, repo_full_name);
+                */
                 
                 var tr_id         = "repo_" + sanitize(repo_space)  + "_" + sanitize(repo_name);
                 

@@ -1,9 +1,9 @@
 var bodyParser       = require( 'body-parser'     ),
-	compression      = require( 'compression'     ),
-	errorHandler     = require( 'errorhandler'    ),
-	methodOverride   = require( 'method-override' ),
-	serveStatic      = require( 'serve-static'    ),
-	serveFavicon     = require( 'serve-favicon'   )
+	  compression      = require( 'compression'     ),
+	  errorHandler     = require( 'errorhandler'    ),
+	  methodOverride   = require( 'method-override' ),
+	  serveStatic      = require( 'serve-static'    ),
+	  serveFavicon     = require( 'serve-favicon'   )
     ;
 
 function init(app) {

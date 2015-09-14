@@ -15,7 +15,7 @@ function get_repos (req,res) {
 
     console.log("getting repos from username", username);
     
-    var data = { "username": username, "status": 1, "status_desc": "getting repos from username " + username }
+    var data = { "username": username, "status": 1, "status_desc": "getting repos from username " + username };
 
     dockerhub.get_repos(username, false,
         function(hit_cache, repos) {
@@ -46,7 +46,7 @@ function get_repo_info (req,res) {
     
     console.log("getting info from repo", repo_name_full);
     
-    var data = { "username": username, "reponame": reponame, "status": 1, "status_desc": "getting info from repo " + repo_name_full }
+    var data = { "username": username, "reponame": reponame, "status": 1, "status_desc": "getting info from repo " + repo_name_full };
     
     dockerhub.get_repo_info(repo_name_full, false,
         function(hit_cache, info) {
@@ -76,7 +76,7 @@ function get_repo_history (req,res) {
     
     console.log("getting history from repo", repo_name_full);
 
-    var data = { "username": username, "reponame": reponame, "status": 1, "status_desc": "getting history from repo " + repo_name_full }
+    var data = { "username": username, "reponame": reponame, "status": 1, "status_desc": "getting history from repo " + repo_name_full };
     
     dockerhub.get_build_history(repo_name_full, false,
         function(hit_cache, hist) {
@@ -108,7 +108,7 @@ function get_build_log (req,res) {
 
     console.log("getting log from repo", repo_name_full, 'build', build_code);
 
-    var data = { "username": username, "reponame": reponame, "buid_code": build_code, "status": 1, "status_desc": "getting log from repo " + repo_name_full + ' build ' + build_code }
+    var data = { "username": username, "reponame": reponame, "buid_code": build_code, "status": 1, "status_desc": "getting log from repo " + repo_name_full + ' build ' + build_code };
     
     dockerhub.get_build_log(repo_name_full, build_code, false,
         function(hit_cache, logs) {
@@ -133,7 +133,7 @@ function get_build_log (req,res) {
 
 
 function update(req,res) { 
-    dockerhub.clean_cache();
+    dockerhub.cacher.clean();
     res.json({'res': true});
 }
 
@@ -171,7 +171,7 @@ function get_all(username, app, callback) {
             if ( app.conf.DEBUG ) {
                 console.log('DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
                 if ( repos.results.length > 1 ) {
-                    repos.results = [ repos.results[1] ]
+                    repos.results = [ repos.results[1] ];
                 }
             }
             
@@ -197,7 +197,7 @@ function get_all(username, app, callback) {
                 var repo_name_full = repo_space + '/' + repo_name;
 
                 dockerhub.get_repo_info(repo_name_full, false, clbk);
-            };
+            }
 
             _get_from_list_serial(repo_list, 'info', 0, info_getter, false,
                 function(status, msg, list_size){
@@ -206,7 +206,7 @@ function get_all(username, app, callback) {
                         data.status      = 4;
                         data.status_desc = "failed getting repository information. " + msg;
     
-                        callback(data)
+                        callback(data);
                         return;
                     }
                     console.log("success getting repository information");
@@ -218,7 +218,7 @@ function get_all(username, app, callback) {
                         var repo_name_full = repo_space + '/' + repo_name;
         
                         dockerhub.get_build_history(repo_name_full, false, clbk);
-                    };
+                    }
                     
                     _get_from_list_serial(repo_list, 'history', 0, hist_getter, false,
                         function(status, msg, list_size){
@@ -227,7 +227,7 @@ function get_all(username, app, callback) {
                                 data.status      = 5;
                                 data.status_desc = "failed getting repository history. " + msg;
             
-                                callback(data)
+                                callback(data);
                                 return;
                             }
 
@@ -261,7 +261,7 @@ function get_all(username, app, callback) {
                                 var repo_name_full = repo_space + '/' + repo_name;
                 
                                 dockerhub.get_build_log(repo_name_full, build_code, false, clbk);
-                            };
+                            }
                             
                             _get_from_list_serial(histories, 'log', 0, log_getter, false,
                                 function(status, msg, list_size){
@@ -270,7 +270,7 @@ function get_all(username, app, callback) {
                                         data.status      = 6;
                                         data.status_desc = "failed getting build log. " + msg;
                     
-                                        callback(data)
+                                        callback(data);
                                         return;
                                     }
 
@@ -279,7 +279,7 @@ function get_all(username, app, callback) {
                                     data.status_desc = "success";
                                     data.data        = repos;
                                     
-                                    callback(data)
+                                    callback(data);
                                     return;
                                 }
                             );
@@ -299,7 +299,7 @@ function _get_from_list_serial(list, key, list_pos, func, no_cache, clbk) {
         function(hit_cache, res) {
             if (!res) {
                 console.log("no res #", list_pos + 1, "/", list_size, ' key: ', key);
-                clbk(false, "error getting res: " + list_size, list_size)
+                clbk(false, "error getting res: " + list_size, list_size);
                 return;
             }
 

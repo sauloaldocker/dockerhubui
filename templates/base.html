@@ -1,0 +1,110 @@
+<h2 class="tableHeader">{{ username|title }}</h2><small>Cache time: {{ cache_time | parse_date }} </small>
+<table id="repo_table_{{username}}" class="repo_table tablesorter">
+    <thead>
+        <tr>
+            <th rowspan="2">Repository Name <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="row_header" colspan="5" >Repository information</th>
+            <th class="row_header" colspan="2" >Build History</th>
+            <th class="row_header" colspan="14">Build Log</th>
+        </tr>
+
+        <tr>
+            <th name="repo_description">Description <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_is_automated">Is automated <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_star_count"># Stars <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_pull_count"># Pull <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_last_updated">Last updated <img src='/images/sort.svg' class='arrows'</image></th>
+
+            <th name="repo_info_full_description">Full description <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_count"># Builds <img src='/images/sort.svg' class='arrows'</image></th>
+
+            <th name="repo_history_last_build_results_source_type">Source type <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_source_url">Source url <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_build_path">Build path <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_source_branch">Source branch <img src='/images/sort.svg' class='arrows'</image></th>
+
+            <th name="repo_history_last_build_results_status_description">Status Description <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_created_date">Creation date <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_last_updated">Last updated <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_build_code">Build code <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_logs">Logs <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_dockerfile_contents">Dockerfile <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_docker_user">Docker user <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_docker_tag">Docker tag <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_failure">Failure <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_error">Error <img src='/images/sort.svg' class='arrows'</image></th>
+        </th>
+    </thead>
+
+    <tbody>
+    {% for repo in results %}
+        {% set tr_id="repo_" + repo.namespace + '_' + repo.name | sanitize %}
+        {% set info          = repo.info         %}
+        {% set history       = repo.history      %}
+        {% set builds        = history.results   %}
+        {% set last_build    = builds[0]         %}
+        {% set log           = last_build.log    %}
+        {% set build_results = log.build_results %}
+
+
+        <tr class="repository_line" id="{{tr_id}}">
+            <td class="repo_namespace"                                      id="{{tr_id}}_repo_namespace"                                      name="repo_namespace">
+                <a href="{{DOCKERHUB_URL}}u/{{repo.namespace}}/">{{ repo.namespace }}</a> / 
+                <a href="{{DOCKERHUB_URL}}r/{{repo.namespace}}/{{repo.name}}/">{{ repo.name }}
+            </td>
+            <td class="repo_description"                                    id="{{tr_id}}_repo_description"                                    name="repo_description">{{ repo.description }}</td>
+            <td class="repo_is_automated"                                   id="{{tr_id}}_repo_is_automated"                                   name="repo_is_automated">{{ repo.is_automated | automated_colorer | safe }}</td>
+            <td class="repo_star_count"                                     id="{{tr_id}}_repo_star_count"                                     name="repo_star_count">{{ repo.star_count }}</td>
+            <td class="repo_pull_count"                                     id="{{tr_id}}_repo_pull_count"                                     name="repo_pull_count">{{ repo.pull_count }}</td>
+            <td class="repo_last_updated"                                   id="{{tr_id}}_repo_last_updated"                                   name="repo_last_updated">{{ repo.last_updated | parse_date }}</td>
+            <td class="repo_info_full_description"                          id="{{tr_id}}_repo_info_full_description"                          name="repo_info_full_description">
+                <button class="button" onclick="show_popup(this)">Show full description
+                    <pre class="pre_data">
+                        {{ info.full_description }}
+                    </pre>
+                </button>
+            </td>
+            <td class="history_count"                                       id="{{tr_id}}_history_count"                                       name="repo_history_count">{{ history.count }}</td>
+
+            {% if build_results.source_type == 'git' %}
+                {% set source_url_url = build_results.source_url.replace('.git', '') %}
+                <td class="repo_history_last_build_results_source_type"         id="{{tr_id}}_repo_history_last_build_results_source_type"         name="repo_history_last_build_results_source_type"><a href="https://github.com">git</a></td>
+                <td class="repo_history_last_build_results_source_url"          id="{{tr_id}}_repo_history_last_build_results_source_url"          name="repo_history_last_build_results_source_url"><a href="{{ source_url_url }}">{{ build_results.source_url.replace("https://github.com", "") }}</a></td>
+                <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path"><a href="{{ source_url_url }}/tree/{{ build_results.source_branch }}{{ build_results.build_path }}">{{ build_results.build_path }}</a></td>
+                <td class="repo_history_last_build_results_source_branch"       id="{{tr_id}}_repo_history_last_build_results_source_branch"       name="repo_history_last_build_results_source_branch"><a href="{{ source_url_url }}/tree/{{ build_results.source_branch }}">{{ build_results.source_branch }}</a></td>
+            {% else %}
+                <td class="repo_history_last_build_results_source_type"         id="{{tr_id}}_repo_history_last_build_results_source_type"         name="repo_history_last_build_results_source_type">{{ build_results.source_type }}</td>
+                <td class="repo_history_last_build_results_source_url"          id="{{tr_id}}_repo_history_last_build_results_source_url"          name="repo_history_last_build_results_source_url">{{ build_results.source_url }}</td>
+                <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path">{{ build_results.build_path }}</td>
+                <td class="repo_history_last_build_results_source_branch"       id="{{tr_id}}_repo_history_last_build_results_source_branch"       name="repo_history_last_build_results_source_branch">{{ build_results.source_branch }}</td>
+            {% endif %}
+
+            <td class="repo_history_last_build_results_status_description"  id="{{tr_id}}_repo_history_last_build_results_status_description"  name="repo_history_last_build_results_status_description">{{ build_results.status_description | status_colorer | safe }}</td>
+            <td class="repo_history_last_build_created_date"                id="{{tr_id}}_repo_history_last_build_created_date"                name="repo_history_last_build_created_date">{{ last_build.created_date | parse_date }}</td>
+            <td class="repo_history_last_build_last_updated"                id="{{tr_id}}_repo_history_last_build_last_updated"                name="repo_history_last_build_last_updated">{{ last_build.last_updated | parse_date }}</td>
+            <td class="repo_history_last_build_build_code"                  id="{{tr_id}}_repo_history_last_build_build_code"                  name="repo_history_last_build_build_code"><span class="fixed_width"><a href="{{ DOCKERHUB_URL }}r/{{ repo.namespace }}/{{ repo.name }}/builds/{{ last_build.build_code }}/">{{ last_build.build_code }}</a></span></td>
+            
+            <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs">
+                <button class="button" onclick="show_popup(this)">Show logs
+                    <pre class="pre_data">
+                        {{ build_results.logs }}
+                    </pre>
+                </button>
+            </td>
+            
+            <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents">
+                <button class="button" onclick="show_popup(this)">Show dockerfile
+                    <pre class="pre_data">
+                        {{ build_results.dockerfile_contents }}
+                    </pre>
+                </button>
+            </td>
+
+            <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user">{{ build_results.docker_user }}</td>
+            <td class="repo_history_last_build_results_docker_tag"          id="{{tr_id}}_repo_history_last_build_results_docker_tag"          name="repo_history_last_build_results_docker_tag">{{ build_results.docker_tag }}</td>
+            <td class="repo_history_last_build_results_failure"             id="{{tr_id}}_repo_history_last_build_results_failure"             name="repo_history_last_build_results_failure">{{ build_results.failure }}</td>
+            <td class="repo_history_last_build_results_error"               id="{{tr_id}}_repo_history_last_build_results_error"               name="repo_history_last_build_results_error">{{ build_results.error }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

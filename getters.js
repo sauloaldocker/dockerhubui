@@ -149,7 +149,7 @@ function getter(req,res) {
     });
 }
 
-function get_all(username, callback) {
+function get_all(username, app, callback) {
     var data = {
         "username"   : username,
         "status"     : 1,
@@ -168,11 +168,12 @@ function get_all(username, callback) {
                 return;
             }
             
-            /*
-            if ( repos.results.length > 1 ) {
-                repos.results = [ repos.results[2] ]
+            if ( app.conf.DEBUG ) {
+                console.log('DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
+                if ( repos.results.length > 1 ) {
+                    repos.results = [ repos.results[1] ]
+                }
             }
-            */
             
             var repo_list = repos.results;
             console.log("# repos", repo_list.length);
@@ -319,13 +320,13 @@ function _get_from_list_serial(list, key, list_pos, func, no_cache, clbk) {
 }
 
 
-function static_xml(req,res) {
+function render_static(req, res, file) {
     var username = req.params.username;
 
     console.log("req"             , req.params);
     console.log("getting username", username  );
 
-    get_all(username, 
+    get_all(username, req.app,
         function(data){
             console.log('static_xml: converting to html');
             
@@ -347,8 +348,9 @@ function static_xml(req,res) {
                 //console.log(results[0]);
 
                 res.render(
-                    'index', 
+                    file, 
                     {
+                        file         : file,
                         username     : username,
                         cache_time   : cache_time,
                         results      : results,
@@ -360,6 +362,15 @@ function static_xml(req,res) {
             }
         }
     );
+}
+
+function static_xml(req,res) {
+    render_static(req, res, 'base');
+}
+
+
+function static_html(req,res) {
+    render_static(req, res, 'index');
 }
 
 function compare_info(a,b) {
@@ -380,3 +391,4 @@ exports.get_repo_history = get_repo_history;
 exports.get_build_log    = get_build_log;
 exports.update           = update;
 exports.static_xml       = static_xml;
+exports.static_html      = static_html;

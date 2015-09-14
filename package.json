@@ -22,6 +22,7 @@
     "request": "*",
     "time": "*",
     "serve-favicon": "*",
-    "serve-static": "*"
+    "serve-static": "*",
+    "swig": "*"
   }
 }

@@ -1,93 +1,68 @@
-var ip                 = process.env.IP   || "0.0.0.0";
-var port               = process.env.PORT || 8080;
+var ip               = process.env.IP   || "0.0.0.0";
+var port             = process.env.PORT || 8080;
+var DOCKERHUB_URL    = 'https://hub.docker.com/';
 
 var application_root = __dirname,
-    bodyParser       = require( 'body-parser'     ),
-	compression      = require( 'compression'     ),
-	errorHandler     = require( 'errorhandler'    ),
     express          = require( 'express'         ),   //Web framework
-	methodOverride   = require( 'method-override' ),
 	//path             = require( 'path'            ),
-    request          = require( 'request'         ),
-    serveStatic      = require( 'serve-static'    ),
-	serveFavicon     = require( 'serve-favicon'   );
+    request          = require( 'request'         )
+	;
 
 
-var getters          = require( './getters.js'    );
+var getters          = require( './getters.js'         );
 var sessionCounter   = require( './session_counter.js' );
+var swigger          = require( './swigger.js'         );
+var expresser        = require( './expresser.js'       );
 
 
-var app = express();
+var app  = express();
 
 app.conf = {};
 app.conf.application_root = application_root;
 app.conf.port             = port;
 app.conf.ip               = ip;
+app.conf.DOCKERHUB_URL    = DOCKERHUB_URL;
 
 app.mods = {}
 app.mods.console          = console;
-app.mods.bodyParser       = bodyParser;
-app.mods.compression      = compression;
-app.mods.errorHandler     = errorHandler;
 app.mods.express          = express;
-app.mods.request          = request,
-app.mods.serveStatic      = serveStatic,
-app.mods.serveFavicon     = serveFavicon;
+app.mods.request          = request;
 
-
+app.mods.getters          = getters;
+app.mods.sessionCounter   = sessionCounter;
+app.mods.swigger          = swigger;
+app.mods.expresser        = expresser;
 
 
 console.log( 'application_root: ', application_root );
 
 
-//http://stackoverflow.com/questions/25550819/error-most-middleware-like-bodyparser-is-no-longer-bundled-with-express
-// parse application/json
-app.use( bodyParser.json() );
-
-
-// parse application/x-www-form-urlencoded
-app.use( bodyParser.urlencoded({ extended: true, uploadDir: app.tempPath }) );
-
-
-//checks request.body for HTTP method overrides
-app.use( methodOverride('X-HTTP-Method-Override') );
-
-
-//allow data compression
-app.use( compression() );
-
-
-//Show all errors in development
-app.use( errorHandler({ dumpExceptions: true, showStack: true }));
-
-
-//Add etag
-var checksum         = require( 'checksum'        );
-app.set('etag', function (body, encoding) {
-  return checksum(body); // consider the function is defined
-})
-
-
 //Cookies and user count
 sessionCounter.init(app);
 
+//Swig
+swigger.init(app);
 
-//Serve static pages
-app.use(express.static('static', {etag: true}));
+//Express
+expresser.init(app);
+
+//Add app to all requests
+function add_app(req, res, next) {
+    req.app = app;
+    next();
+}
+app.use(add_app);
 
 
 
 
-
-//console.log('views path', path.join(application_root, 'views'));
-
-//app.get(    '/'                                      , function (req,res) { res.redirect('/static/'); } );
-
+//Set routes 
 app.get(    '/repos/:username/'                      , getters.get_repos        );
 app.get(    '/info/:username/:reponame/'             , getters.get_repo_info    );
 app.get(    '/history/:username/:reponame/'          , getters.get_repo_history );
 app.get(    '/logs/:username/:reponame/:build_code/' , getters.get_build_log    );
 app.get(    '/update/'                               , getters.update           );
+app.get(    '/xml/:username/'                        , getters.static_xml       );
 
 
 exports.app      = app;

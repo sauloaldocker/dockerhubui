@@ -15,11 +15,16 @@ function init(app) {
     console.log('tmp_folder', tmp_folder);
     storage.initSync({dir: tmp_folder, ttl: false, loggin: true});
 
-    app.use(cookieParser('ILuvCookies'))
-    app.use(cookieSession({
-      name: 'dockerhubuibiodocker',
-      keys: ['firstvisit', new time.Date()]
-    }))
+    app.use(cookieParser('ILuvCookies'));
+    app.use(
+        cookieSession(
+            {
+                name: 'dockerhubuibiodocker',
+                keys: ['firstvisit', new time.Date()]
+            }
+        )
+    );
+
     app.set('trust proxy', 1) // trust first proxy
     
     app.use(session_keeper);
@@ -144,4 +149,8 @@ function add_view() {
     );
 }
 
-exports.init = init;
+exports.init                  = init;
+exports.get_num_views         = get_num_views;
+exports.get_num_views_sync    = get_num_views_sync;
+exports.get_num_sessions      = get_num_sessions;
+exports.get_num_sessions_sync = get_num_sessions_sync;

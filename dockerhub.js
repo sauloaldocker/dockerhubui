@@ -63,21 +63,21 @@ function get_repos(username, no_cache, clbk) {
     if (!no_cache) {
         var val = check_cache(username, cache_name);
         if ( val ) {
-            clbk(val);
+            clbk( true, val );
             return;
         }
     }
 
     request.get({"url": "https://hub.docker.com/v2/repositories/"+username+"/?page_size=1000", "json": true},
-        function name(error, response, repos) {
+        function (error, response, repos) {
             if (error) {
                 console.log("error getting repos", error, repos);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             if (response.headers['content-type'] != "application/json") {
                 console.log("error getting repos. wrong type", response.headers['content-type'], repos, response.request.uri.path);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             //console.log("success getting repos", response.request.uri.path, repos);
@@ -89,7 +89,7 @@ function get_repos(username, no_cache, clbk) {
             var cache_time = (new Date()).getTime();
             caches[cache_name][username] = [cache_time, repos];
             repos.cache_time = cache_time;
-            clbk(repos);
+            clbk( false, repos );
         }
     );
 }
@@ -100,7 +100,7 @@ function get_repo_info(repo_name, no_cache, clbk) {
     if (!no_cache) {
         var val = check_cache(repo_name, cache_name);
         if ( val ) {
-            clbk(val);
+            clbk( true, val );
             return;
         }
     }
@@ -109,12 +109,12 @@ function get_repo_info(repo_name, no_cache, clbk) {
         function name(error, response, build_info) {
             if (error) {
                 console.log("error getting build info", error, build_info);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             if (response.headers['content-type'] != "application/json") {
                 console.log("error getting build info. wrong type", response.headers['content-type'], response.request.uri.path, build_info);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             console.log("success getting build info", response.request.uri.path);
@@ -124,7 +124,7 @@ function get_repo_info(repo_name, no_cache, clbk) {
             caches[cache_name][repo_name] = [cache_time, build_info];
             build_info.cache_time = cache_time;
             
-            clbk( build_info );
+            clbk( false, build_info );
 
             // { user: 'sauloal',
             //	name: 'introgressionbrowser',
@@ -149,7 +149,7 @@ function get_build_history(repo_name, no_cache, clbk) {
     if (!no_cache) {
         var val = check_cache(repo_name, cache_name);
         if ( val ) {
-            clbk(val);
+            clbk( true, val );
             return;
         }
     }
@@ -158,12 +158,12 @@ function get_build_history(repo_name, no_cache, clbk) {
         function (error, response, build_history) {
             if (error) {
                 console.log("error getting build history", error, build_history);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             if (response.headers['content-type'] != "application/json") {
                 console.log("error getting build history. wrong type", response.headers['content-type'], build_history, response.request.uri.path);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             console.log("success getting build history", response.request.uri.path);
@@ -174,7 +174,7 @@ function get_build_history(repo_name, no_cache, clbk) {
             caches[cache_name][repo_name] = [cache_time, build_history];
             build_history.cache_time = cache_time;
 
-            clbk(build_history);
+            clbk( false, build_history );
 
             //{ count: 46,
             // next: 'https://hub.docker.com/v2/repositories/sauloal/introgressionbrowser/buildhistory/?page=2',
@@ -196,7 +196,7 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
     if (!no_cache) {
         var val = check_cache(repo_name + "_" + build_id, cache_name);
         if ( val ) {
-            clbk(val);
+            clbk( true, val );
             return;
         }
     }
@@ -205,12 +205,12 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
         function (error, response, build_log) {
             if (error) {
                 console.log("error getting build log", error, build_log);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             if (response.headers['content-type'] != "application/json") {
                 console.log("error getting build log. wrong type", response.headers['content-type'], build_log, response.request.uri.path);
-                clbk(null);
+                clbk( false, null );
                 return;
             }
             console.log("success getting build log:", response.request.uri.path);
@@ -221,7 +221,7 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
             caches[cache_name][repo_name + "_" + build_id] = [cache_time, build_log];
             build_log.cache_time = cache_time;
     
-            clbk(build_log);
+            clbk( false, build_log );
             //{ id: 1785682,
             //  status: 10,
             //  tag: 65567,

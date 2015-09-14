@@ -5,7 +5,7 @@ var DOCKERHUB_URL = 'https://hub.docker.com/';
 var GIT_URL       = 'https://github.com/';
 var DOCKER_DATA   = { "biodckr": {} }; // default username to show
 var DEBUG         = false;
-var DEBUG         = true;
+//var DEBUG         = true;
 
 console.log("DOCKER_DATA"  , DOCKER_DATA  );
 console.log("DOCKERHUB_URL", DOCKERHUB_URL);

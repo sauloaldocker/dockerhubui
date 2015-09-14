@@ -1,23 +1,20 @@
-var ip               = process.env.IP   || "0.0.0.0";
-var port             = process.env.PORT || 8080;
-var DOCKERHUB_URL    = 'https://hub.docker.com/';
+var ip                    = process.env.IP   || "0.0.0.0";
+var port                  = process.env.PORT || 8080;
+var DOCKERHUB_URL         = 'https://hub.docker.com/';
 
-var application_root = __dirname,
-    express          = require( 'express'         ),   //Web framework
-	//path             = require( 'path'            ),
-    request          = require( 'request'         )
+var application_root      = __dirname,
+    express               = require( 'express'         ),   //Web framework
+    request               = require( 'request'         )    //Web request
 	;
 
+var getters               = require( './getters.js'         );
+var sessionCounter        = require( './session_counter.js' );
+var swigger               = require( './swigger.js'         );
+var expresser             = require( './expresser.js'       );
 
-var getters          = require( './getters.js'         );
-var sessionCounter   = require( './session_counter.js' );
-var swigger          = require( './swigger.js'         );
-var expresser        = require( './expresser.js'       );
+var app                   = express();
 
-
-var app  = express();
-
-app.conf = {};
+app.conf                  = {};
 app.conf.application_root = application_root;
 app.conf.port             = port;
 app.conf.ip               = ip;
@@ -33,9 +30,7 @@ app.mods.sessionCounter   = sessionCounter;
 app.mods.swigger          = swigger;
 app.mods.expresser        = expresser;
 
-
 console.log( 'application_root: ', application_root );
-
 
 //Cookies and user count
 sessionCounter.init(app);
@@ -52,8 +47,6 @@ function add_app(req, res, next) {
     next();
 }
 app.use(add_app);
-
-
 
 
 //Set routes 

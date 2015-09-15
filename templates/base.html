@@ -25,8 +25,8 @@
 
             <th name="repo_history_last_build_results_source_type">Source type <img src='/images/sort.svg' class='arrows'</image></th>
             <th name="repo_history_last_build_results_source_url">Source url <img src='/images/sort.svg' class='arrows'</image></th>
-            <th name="repo_history_last_build_results_build_path">Build path <img src='/images/sort.svg' class='arrows'</image></th>
             <th name="repo_history_last_build_results_source_branch">Source branch <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_history_last_build_results_build_path">Build path <img src='/images/sort.svg' class='arrows'</image></th>
 
             <th name="repo_history_last_build_results_status_description">Status Description <img src='/images/sort.svg' class='arrows'</image></th>
             <th name="repo_history_last_build_created_date">Creation date <img src='/images/sort.svg' class='arrows'</image></th>
@@ -74,16 +74,17 @@
             <td class="history_count"                                       id="{{tr_id}}_history_count"                                       name="repo_history_count">{{ history.count }}</td>
 
             {% if build_results.source_type == 'git' %}
-                {% set source_url_url = build_results.source_url.replace('.git', '') %}
+                {% set source_url_url  = build_results.source_url.replace('.git', '') %}
+                {% set source_url_name = source_url_url.replace(GIT_URL, "")          %}
                 <td class="repo_history_last_build_results_source_type"         id="{{tr_id}}_repo_history_last_build_results_source_type"         name="repo_history_last_build_results_source_type"><a href="https://github.com">git</a></td>
-                <td class="repo_history_last_build_results_source_url"          id="{{tr_id}}_repo_history_last_build_results_source_url"          name="repo_history_last_build_results_source_url"><a href="{{ source_url_url }}">{{ build_results.source_url.replace("https://github.com", "") }}</a></td>
-                <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path"><a href="{{ source_url_url }}/tree/{{ build_results.source_branch }}{{ build_results.build_path }}">{{ build_results.build_path }}</a></td>
+                <td class="repo_history_last_build_results_source_url"          id="{{tr_id}}_repo_history_last_build_results_source_url"          name="repo_history_last_build_results_source_url"><a href="{{ source_url_url }}">{{ source_url_name }}</a></td>
                 <td class="repo_history_last_build_results_source_branch"       id="{{tr_id}}_repo_history_last_build_results_source_branch"       name="repo_history_last_build_results_source_branch"><a href="{{ source_url_url }}/tree/{{ build_results.source_branch }}">{{ build_results.source_branch }}</a></td>
+                <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path"><a href="{{ source_url_url }}/tree/{{ build_results.source_branch }}{{ build_results.build_path }}">{{ build_results.build_path|strip_terminal_slashes }}</a></td>
             {% else %}
                 <td class="repo_history_last_build_results_source_type"         id="{{tr_id}}_repo_history_last_build_results_source_type"         name="repo_history_last_build_results_source_type">{{ build_results.source_type }}</td>
                 <td class="repo_history_last_build_results_source_url"          id="{{tr_id}}_repo_history_last_build_results_source_url"          name="repo_history_last_build_results_source_url">{{ build_results.source_url }}</td>
-                <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path">{{ build_results.build_path }}</td>
                 <td class="repo_history_last_build_results_source_branch"       id="{{tr_id}}_repo_history_last_build_results_source_branch"       name="repo_history_last_build_results_source_branch">{{ build_results.source_branch }}</td>
+                <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path">{{ build_results.build_path }}</td>
             {% endif %}
 
             <td class="repo_history_last_build_results_status_description"  id="{{tr_id}}_repo_history_last_build_results_status_description"  name="repo_history_last_build_results_status_description">{{ build_results.status_description | status_colorer | safe }}</td>
@@ -104,7 +105,7 @@
             <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents"></td>
             {% endif %}
 
-            <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user">{{ build_results.docker_user }}</td>
+            <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user"><a href="{{ DOCKERHUB_URL }}u/{{ build_results.docker_user }}/">{{ build_results.docker_user }}</a></td>
             <td class="repo_history_last_build_results_docker_tag"          id="{{tr_id}}_repo_history_last_build_results_docker_tag"          name="repo_history_last_build_results_docker_tag">{{ build_results.docker_tag }}</td>
             
             {% if build_results.failure %}

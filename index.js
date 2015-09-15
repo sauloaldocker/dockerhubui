@@ -1,6 +1,7 @@
 var ip                    = process.env.IP            || "0.0.0.0";
 var port                  = process.env.PORT          || 8080;
 var DOCKERHUB_URL         = process.env.DOCKERHUB_URL || 'https://hub.docker.com/';
+var GIT_URL               = process.env.GIT_URL       || 'https://github.com/';
 var DEBUG                 = process.env.DEBUG         || false;
 //var DEBUG                 = process.env.DEBUG         || true;
 console.log('DEBUG', DEBUG);
@@ -23,6 +24,7 @@ app.conf.application_root = application_root;
 app.conf.port             = port;
 app.conf.ip               = ip;
 app.conf.DOCKERHUB_URL    = DOCKERHUB_URL;
+app.conf.GIT_URL          = GIT_URL;
 app.conf.DEBUG            = DEBUG;
 
 app.mods                  = {};

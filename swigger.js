@@ -13,13 +13,13 @@ function init(app) {
 
     swig.setDefaults({ cache: false });
     
-    swig.setFilter( 'sanitize'         , sanitize          );
-
-    swig.setFilter( 'parse_date'       , parse_date        );
-    
-    swig.setFilter( 'status_colorer'   , status_colorer    );
-    
-    swig.setFilter( 'automated_colorer', automated_colorer );
+    swig.setFilter( 'sanitize'              , sanitize               );
+    swig.setFilter( 'parse_date'            , parse_date             );
+    swig.setFilter( 'status_colorer'        , status_colorer         );
+    swig.setFilter( 'automated_colorer'     , automated_colorer      );
+    swig.setFilter( 'strip_leading_slash'   , strip_leading_slash    );
+    swig.setFilter( 'strip_trailing_slash'  , strip_trailing_slash   );
+    swig.setFilter( 'strip_terminal_slashes', strip_terminal_slashes );
 }
 
 function sanitize(n) {
@@ -58,6 +58,18 @@ function automated_colorer  (z) { var zz = z ? 'automated' : 'manual'; return '<
 
 function sanitize_status(n) {
     return n.replace('.', '_').replace('+', '_').replace('/', '_').replace('\\', '_').replace(' ', '_').replace('__', '_').replace('__', '_').toLowerCase();
+}
+
+function strip_leading_slash(s){
+    return s.replace(/^\//,'')
+}
+
+function strip_trailing_slash(s){
+    return s.replace(/\/$/,'')
+}
+
+function strip_terminal_slashes(s){
+    return strip_leading_slash(strip_trailing_slash(s));
 }
 
 exports.init   = init;

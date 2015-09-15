@@ -380,7 +380,8 @@ function render_dynamic(req, res, file, render_as) {
                     all_results  : all_results,
                     num_sessions : req.app.mods.sessionCounter.get_num_sessions_sync(),
                     num_views    : req.app.mods.sessionCounter.get_num_views_sync(),
-                    DOCKERHUB_URL: req.app.conf.DOCKERHUB_URL
+                    DOCKERHUB_URL: req.app.conf.DOCKERHUB_URL,
+                    GIT_URL      : req.app.conf.GIT_URL
                 }
             );
         } else {

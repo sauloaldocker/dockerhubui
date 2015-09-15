@@ -31,9 +31,11 @@ function init(app) {
         cache          : false
     };
     app.conf.session_counter  = {
-        dir           : path.join( app.conf.DATA_DIR, 'sessions' ),
-        ttl           : false, 
-        loggin        : true,
+        default       : {
+            dir           : path.join( app.conf.DATA_DIR, 'sessions' ),
+            ttl           : false, 
+            loggin        : true,
+        },
         secret        : 'ILuvCookies',
         session_name  : 'dockerhubuibiodocker',
         trust_proxy   : 1

@@ -14,7 +14,12 @@ function init(app) {
     app.mods.cookieSession    = cookieSession;
     app.mods.storage          = storage;
 
-    storage.initSync( app.conf.session_counter );
+    console.log( 'default     ', app.conf.session_counter.default      );
+    console.log( 'session_name', app.conf.session_counter.session_name );
+    console.log( 'secret      ', app.conf.session_counter.secret       );
+    console.log( 'trust_proxy ', app.conf.session_counter.trust_proxy  );
+
+    storage.initSync( app.conf.session_counter.default );
 
     app.use(cookieParser(app.conf.session_counter.secret));
 
@@ -50,18 +55,24 @@ function session_keeper(req, res, next) {
     //logger("req", req);
     //logger("req session", JSON.stringify(req.session));
     //logger("req session views", req.session.views);
+
     var cookie_id = req.cookies.dockerhubuibiodocker;
+
     logger("req cookie_id", cookie_id);
+
     if (req.session.isNew) {
         logger("adding session");
         add_session(cookie_id);
         add_view();
+
     } {
         logger("adding view");
         add_view();
+
     }
   } else {
-      //logger("req url", req.url);
+      logger("req url", req.url);
+
   }
   // Write response
   //res.end(req.session.views + ' views')

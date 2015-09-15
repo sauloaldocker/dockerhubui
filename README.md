@@ -29,6 +29,8 @@ var port                  = process.env.PORT                  || 8080;
 var DOCKERHUB_URL         = process.env.DOCKERHUB_URL         || 'https://hub.docker.com/';
 var DEBUG                 = process.env.DEBUG                 || false;
 var CACHE_TIMEOUT_MINUTES = process.env.CACHE_TIMEOUT_MINUTES || 1440;
+var ALLOWED_REPOS         = process.env.ALLOWED_REPOS         || "biodckr,sauloal";
+var FORBIDDEN_REPOS       = process.env.FORBIDDEN_REPOS       || "";
 ```
 
 ## Endpoints
@@ -45,4 +47,3 @@ var CACHE_TIMEOUT_MINUTES = process.env.CACHE_TIMEOUT_MINUTES || 1440;
  - ```https://hub.docker.com/v2/repositories/<username>/<repository>/```
  - ```https://hub.docker.com/v2/repositories/<username>/<repository>/buildhistory/```
  - ```https://hub.docker.com/v2/repositories/<username>/<repository>/buildhistory/<build id>/```
-

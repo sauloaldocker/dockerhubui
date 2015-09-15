@@ -28,7 +28,7 @@ function get_tables(container_id, username) {
         }
     )
     .fail(function(err) {
-        alert('error getting xml');
+        alert('error getting xml: ' + err.responseText);
         console.log('error getting xml', err);
     })
     .done(function(data) {

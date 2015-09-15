@@ -1,6 +1,7 @@
 var dockerhub = require( './dockerhub.js' );
 var logger    = require('./logger.js'     );
 
+
 function send_data(hit_cache, res, data) {
     //var jdata = JSON.stringify(data);
     //var cs    = checksum(jdata);
@@ -467,11 +468,70 @@ function compare_info(a,b) {
 }
 
 
-exports.getter           = getter;
-exports.get_repos        = get_repos;
-exports.get_repo_info    = get_repo_info;
-exports.get_repo_history = get_repo_history;
-exports.get_build_log    = get_build_log;
-exports.update           = update;
-exports.dynamic_xml      = dynamic_xml;
-exports.dynamic_html     = dynamic_html;
+
+
+
+//Filter username
+function filter_username(req, res, func) {
+    var app = req.app;
+
+    if ( app.conf.HAS_FILTER && req.method == 'GET' && 'username' in req.params ) { // Has filter
+        var username       = req.params.username;
+        if ( app.conf.ALLOWED_REPOS.length > 0 ) { // Has whitelist
+            if ( app.conf.ALLOWED_REPOS.indexOf( username ) != -1 ) { // Has whitelist. In whitelist
+                logger('Has filter. Has whitelist. In whitelist', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+                func(req, res); // proceed
+                return;
+                
+            } else { // Has whitelist. Not in whitelist
+                logger('Has filter. Has whitelist. Not in whitelist', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+                res.status(401)        // HTTP status 304: NotAllowed
+                    .send('Not allowed');
+                return;
+            
+            }
+        } else { // No whitelist list
+            logger('No whitelist list', username);
+            if ( app.conf.FORBIDDEN_REPOS.length > 0 ) { // No whitelist list. Has blacklist
+                logger('Has filter. No whitelist list. Has blacklist', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+
+                if ( !(app.conf.FORBIDDEN_REPOS.indexOf( username ) != -1) ) { // No whitelist list. Has blacklist. Not in blacklist
+                    logger('Has filter. No whitelist list. Has blacklist. Not in blacklist', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+                    func(req, res); // proceed
+                    return;
+                    
+                } else { // No whitelist list. Has blacklist. In blacklist
+                    logger('Has filter. No whitelist list. Has blacklist. In blacklist', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+                    res.status(401)        // HTTP status 304: NotAllowed
+                        .send('Not allowed');
+                        
+                }
+            } else { // No blacklist
+                logger('Has filter. No blacklist', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+                func(req, res); // proceed
+                return;
+                
+            }
+        }
+    } else { // No filter
+        logger('No filter', username, app.conf.ALLOWED_REPOS, app.conf.FORBIDDEN_REPOS);
+        func(req, res);
+        
+    }
+}
+
+function add_filter( filter, func ) {
+    return function (req, res) {
+        filter(req, res, func);
+    };
+}
+
+
+exports.getter           = add_filter( filter_username, getter           );
+exports.get_repos        = add_filter( filter_username, get_repos        );
+exports.get_repo_info    = add_filter( filter_username, get_repo_info    );
+exports.get_repo_history = add_filter( filter_username, get_repo_history );
+exports.get_build_log    = add_filter( filter_username, get_build_log    );
+exports.update           = add_filter( filter_username, update           );
+exports.dynamic_xml      = add_filter( filter_username, dynamic_xml      );
+exports.dynamic_html     = add_filter( filter_username, dynamic_html     );

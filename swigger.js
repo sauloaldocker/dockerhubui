@@ -1,22 +1,23 @@
-var swig             = require( 'swig'            );
-	
+var swig    = require( 'swig'       );
+var logger  = require('./logger.js' );	
 	
 function init(app) {
     app.mods.swig             = swig;
-    
+
     // This is where all the magic happens!
     app.engine('html', swig.renderFile);
     
-    app.set('view engine', 'html');
-    app.set('views', __dirname + '/templates');
-    app.set('view cache', false);
+    app.set( 'view engine', 'html'                   );
+    app.set( 'views'      , __dirname + '/templates' );
+    app.set( 'view cache' , false                    );
+
     swig.setDefaults({ cache: false });
     
-    swig.setFilter( 'sanitize', sanitize );
+    swig.setFilter( 'sanitize'         , sanitize          );
 
-    swig.setFilter( 'parse_date', parse_date );
+    swig.setFilter( 'parse_date'       , parse_date        );
     
-    swig.setFilter( 'status_colorer', status_colorer );
+    swig.setFilter( 'status_colorer'   , status_colorer    );
     
     swig.setFilter( 'automated_colorer', automated_colorer );
 }
@@ -42,7 +43,7 @@ function format_date(d) {
     
     var str = yr + '-' + mon + '-' + day + ' ' + hr + ':' + min + ' UTC';
 
-    //console.log(str);
+    //logger(str);
     
     return str;
 }
@@ -59,4 +60,4 @@ function sanitize_status(n) {
     return n.replace('.', '_').replace('+', '_').replace('/', '_').replace('\\', '_').replace(' ', '_').replace('__', '_').replace('__', '_').toLowerCase();
 }
 
-exports.init = init;
+exports.init   = init;

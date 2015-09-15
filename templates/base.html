@@ -1,3 +1,8 @@
+{% for rslt in all_results %}
+    {% set results    = rslt[0] %}
+    {% set cache_time = rslt[1] %}
+    {% set username   = rslt[2] %}
+
 <h2 class="tableHeader">{{ username|title }}</h2><small>Cache time: {{ cache_time | parse_date }} </small>
 <table id="repo_table_{{username}}" class="repo_table tablesorter">
     <thead>
@@ -58,11 +63,13 @@
             <td class="repo_pull_count"                                     id="{{tr_id}}_repo_pull_count"                                     name="repo_pull_count">{{ repo.pull_count }}</td>
             <td class="repo_last_updated"                                   id="{{tr_id}}_repo_last_updated"                                   name="repo_last_updated">{{ repo.last_updated | parse_date }}</td>
             <td class="repo_info_full_description"                          id="{{tr_id}}_repo_info_full_description"                          name="repo_info_full_description">
+                {% if info.full_description %}
                 <button class="button" onclick="show_popup(this)">Show full description
                     <pre class="pre_data">
                         {{ info.full_description }}
                     </pre>
                 </button>
+                {% endif %}
             </td>
             <td class="history_count"                                       id="{{tr_id}}_history_count"                                       name="repo_history_count">{{ history.count }}</td>
 
@@ -84,21 +91,18 @@
             <td class="repo_history_last_build_last_updated"                id="{{tr_id}}_repo_history_last_build_last_updated"                name="repo_history_last_build_last_updated">{{ last_build.last_updated | parse_date }}</td>
             <td class="repo_history_last_build_build_code"                  id="{{tr_id}}_repo_history_last_build_build_code"                  name="repo_history_last_build_build_code"><span class="fixed_width"><a href="{{ DOCKERHUB_URL }}r/{{ repo.namespace }}/{{ repo.name }}/builds/{{ last_build.build_code }}/">{{ last_build.build_code }}</a></span></td>
             
+            {% if last_build.build_code %}
             <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs">
-                <button class="button" onclick="show_popup(this)">Show logs
-                    <pre class="pre_data">
-                        {{ build_results.logs }}
-                    </pre>
-                </button>
+                <button class="button" onclick="show_logs(this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show logs</button>
             </td>
             
             <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents">
-                <button class="button" onclick="show_popup(this)">Show dockerfile
-                    <pre class="pre_data">
-                        {{ build_results.dockerfile_contents }}
-                    </pre>
-                </button>
+                <button class="button" onclick="show_dockerfile(this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show dockerfile</button>
             </td>
+            {% else %}
+            <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs"></td>
+            <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents"></td>
+            {% endif %}
 
             <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user">{{ build_results.docker_user }}</td>
             <td class="repo_history_last_build_results_docker_tag"          id="{{tr_id}}_repo_history_last_build_results_docker_tag"          name="repo_history_last_build_results_docker_tag">{{ build_results.docker_tag }}</td>
@@ -108,3 +112,4 @@
         {% endfor %}
     </tbody>
 </table>
+{% endfor %}

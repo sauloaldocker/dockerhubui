@@ -1,10 +1,12 @@
 var bodyParser       = require( 'body-parser'     ),
-	  compression      = require( 'compression'     ),
-	  errorHandler     = require( 'errorhandler'    ),
-	  methodOverride   = require( 'method-override' ),
-	  serveStatic      = require( 'serve-static'    ),
-	  serveFavicon     = require( 'serve-favicon'   )
+    compression      = require( 'compression'     ),
+	errorHandler     = require( 'errorhandler'    ),
+	methodOverride   = require( 'method-override' ),
+	serveStatic      = require( 'serve-static'    ),
+	serveFavicon     = require( 'serve-favicon'   )
     ;
+
+var logger  = require('./logger.js' );
 
 function init(app) {
     app.mods.bodyParser       = bodyParser;
@@ -13,8 +15,6 @@ function init(app) {
     app.mods.methodOverride   = methodOverride;
     app.mods.serveStatic      = serveStatic;
     app.mods.serveFavicon     = serveFavicon;
-
-
 
     //http://stackoverflow.com/questions/25550819/error-most-middleware-like-bodyparser-is-no-longer-bundled-with-express
     // parse application/json
@@ -47,4 +47,5 @@ function init(app) {
     app.use(app.mods.express.static('static', {etag: true}));
 }
 
-exports.init = init;
+
+exports.init   = init;

@@ -1,78 +1,113 @@
+var storage          = require( 'node-persist' );
+var path             = require( 'path'         );
+var logger           = require('./logger.js'   );
+
+var tmp_folder       = path.join( __dirname, 'storage' );
+
+logger('storage folder', tmp_folder);
+
+//storage.setItemSync('test', 'test');
+
 var cache = function(cache_timeout) {
     this.cache_timeout = cache_timeout || 0; // no cache
     this.data          = {};
 };
 
-cache.prototype.add_db = function(db) {
+cache.prototype.add_db = function(db, clbk) {
+    db = this.sanitize(db);
+    logger('cache.add: adding db', db);
+    
     if ( db in this.data ) {
-        console.log('db already in cache', db);
-        return;
-    }
+        logger('cache.add: db already in cache', db);
+        clbk();
 
-    console.log('creating cache for db', db);
-
-    this.data[db] = {};
-};
-
-cache.prototype.clean = function(db, key) {
-    console.log("cleaning cache");
-    for ( var c in this.data ) {
-        console.log("cleaning cache", c);
-        this.data[c] = {};
-    }    
-};
-
-cache.prototype.get   = function(db, key) {
-    if (this.cache_timeout == 0){
-        console.log("no cache enabled");
-        return null;
-    }
-    
-    if ( !(db in this.data) ) {
-        console.log("no such db in cache", db);
-        return null;
-    }
-    
-    var ch   = this.data[db];
-    
-    if ( !(key in ch) ) {
-        console.log("missed cache  ", 'db', db, 'key', key, 'ctm', ctm);
-        return null;
-        
     } else {
-        var ctm  = ch[key][0];
-        var val  = ch[key][1];
-        var now  = (new Date()).getTime();
-        var diff = now - ctm;
-
-        if ( diff > this.cache_timeout ) {
-            console.log("cache timedout", 'db', db, 'key', key, 'ctm', ctm, 'now', now, 'timeout', this.cache_timeout, 'diff', diff);
-            return null;
+        logger('cache.add: creating cache for db', db);
+    
+        var db_folder = path.join( tmp_folder, db );
+        var myStorage = storage.create({dir: db_folder, ttl: this.cache_timeout, loggin: true});
+            myStorage.initSync();
+    
+        this.data[db] = myStorage;
         
-        } else {
-            console.log("found cache   ", 'db', db, 'key', key, 'ctm', ctm, 'now', now, 'timeout', this.cache_timeout, 'diff', diff);
-            return val;
-
-        }
+        clbk();
     }
 };
 
-cache.prototype.set   = function(db, key, val) {
-    if (this.cache_timeout == 0){
-        console.log("no cache enabled");
-        return null;
+cache.prototype.clean = function() {
+    logger("cache.clean: cleaning cache");
+    for ( var c in this.data ) {
+        logger("cache.clean: cleaning cache", c);
+
+        this.data[c].clearSync();
     }
+};
+
+cache.prototype.get   = function(db, key, clbk) {
+    db  = this.sanitize(db );
+    key = this.sanitize(key);
+
+    logger("cache.get: getting cache: db", db, 'key', key);
+    
+    var th = this;
     
     if ( !(db in this.data) ) {
-        console.log("no such db in cache", db);
-        this.add_db(db);
-    }
+        logger("cache.get: getting cache: db", db, 'key', key, "no such db");
+        this.add_db(db, 
+            function() {
+                th.get(db, key, clbk); 
+            }
+        );
+
+    } else {
+        logger("cache.get: getting cache: db", db, 'key', key, "db is present");
     
-    var ch   = this.data[db];
-    var now  = (new Date()).getTime();
-    console.log("adding to cache", 'db', db, 'key', key, 'now', now);
-    ch[key] = [now, val];
+        this.data[db].getItem(key, 
+            function(err, val) {
+                logger("cache.get: getting cache: db", db, 'key', key, "got key");
+                if ( err ) {
+                    logger("cache.get: getting cache: db", db, 'key', key, "got key error", err);
+                    clbk(null);
+
+                } else {
+                    logger("cache.get: getting cache: db", db, 'key', key, "got key success");
+                    clbk(val);
+
+                }
+            }
+        );
+    }
+};
+
+cache.prototype.set   = function(db, key, val, clbk) {
+    db     = this.sanitize(db );
+    key    = this.sanitize(key);
+    
+    logger("cache.set: setting cache: db", db, 'key', key);
+        
+    var th = this;
+    if ( !(db in this.data) ) {
+        logger("cache.set: setting cache: db", db, 'key', key, "no such db. creating");
+        this.add_db(db, 
+            function() {
+                th.set(db, key, val, clbk); 
+            }
+        );
+
+    } else {
+        logger("cache.set: setting cache: db", db, 'key', key, "db is present");
+        var ch   = this.data[db];
+        var now  = (new Date()).getTime();
+        logger("cache.set: setting cache: db", db, 'key', key, 'now', now);
+        ch.setItem(key, val, clbk);
+        
+    }
 };
 
 
-exports.cache = cache;
+cache.prototype.sanitize = function(n) {
+    return n.replace('.', '_').replace('-', '_').replace('+', '_').replace('/', '_').replace('\\', '_').replace(' ', '_').replace('__', '_').replace('__', '_').toLowerCase();
+}
+
+
+exports.cache  = cache;

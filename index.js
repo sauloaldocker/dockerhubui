@@ -1,8 +1,8 @@
 var ip                    = process.env.IP            || "0.0.0.0";
 var port                  = process.env.PORT          || 8080;
 var DOCKERHUB_URL         = process.env.DOCKERHUB_URL || 'https://hub.docker.com/';
-//var DEBUG                 = process.env.DEBUG         || false;
-var DEBUG                 = process.env.DEBUG         || true;
+var DEBUG                 = process.env.DEBUG         || false;
+//var DEBUG                 = process.env.DEBUG         || true;
 console.log('DEBUG', DEBUG);
 
 var application_root      = __dirname,
@@ -10,10 +10,11 @@ var application_root      = __dirname,
     request               = require( 'request'         )    //Web request
 	;
 
+var expresser             = require( './expresser.js'       );
 var getters               = require( './getters.js'         );
+var logger                = require( './logger.js'          );
 var sessionCounter        = require( './session_counter.js' );
 var swigger               = require( './swigger.js'         );
-var expresser             = require( './expresser.js'       );
 
 var app                   = express();
 
@@ -29,21 +30,22 @@ app.mods.console          = console;
 app.mods.express          = express;
 app.mods.request          = request;
 
+app.mods.expresser        = expresser;
 app.mods.getters          = getters;
+app.mods.logger           = logger;
 app.mods.sessionCounter   = sessionCounter;
 app.mods.swigger          = swigger;
-app.mods.expresser        = expresser;
 
-console.log( 'application_root: ', application_root );
 
-//Cookies and user count
-sessionCounter.init(app);
 
-//Swig
-swigger.init(app);
 
-//Express
-expresser.init(app);
+console.warn( 'application_root: ', application_root );
+
+
+sessionCounter.init(app); //Cookies and user count
+swigger.init(app);        //Swig
+expresser.init(app);      //Express
+
 
 //Add app to all requests
 function add_app(req, res, next) {
@@ -59,13 +61,13 @@ app.get(    '/info/:username/:reponame/'             , getters.get_repo_info    
 app.get(    '/history/:username/:reponame/'          , getters.get_repo_history );
 app.get(    '/logs/:username/:reponame/:build_code/' , getters.get_build_log    );
 app.get(    '/update/'                               , getters.update           );
-app.get(    '/xml/:username/'                        , getters.static_xml       );
-app.get(    '/html/:username/'                       , getters.static_html      );
+app.get(    '/xml/:username/'                        , getters.dynamic_xml      );
+app.get(    '/html/:username/'                       , getters.dynamic_html     );
 
 
 exports.app      = app;
 
 app.listen( port, ip, function() {
-    console.log( 'Express server listening on http://%s:%s', ip, port);
+    console.warn( 'Express server listening on http://%s:%s', ip, port );
 });
 

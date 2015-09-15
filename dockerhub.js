@@ -1,6 +1,6 @@
-var request = require( 'request'    );
-var cache   = require( './cache.js' );
-var logger  = require('./logger.js' );
+var request = require( 'request'     ),
+    cache   = require( './cache.js'  ),
+    logger  = require( './logger.js' );
 
 /*
  * WEB HUB API
@@ -13,7 +13,14 @@ var logger  = require('./logger.js' );
 var CACHE_TIMEOUT_MINUTES = process.env.CACHE_TIMEOUT_MINUTES || 1440; //60 = 1h 1440 = 1 day
 var CACHE_TIMEOUT         = CACHE_TIMEOUT_MINUTES * 1000 * 60;
 
-var cacher = new cache.cache(CACHE_TIMEOUT);
+var cacher                = null;
+
+
+function init(app) {
+    cache.init(app);
+    cacher = new cache.cache(CACHE_TIMEOUT);
+}
+
 
 
 function get_repos(username, no_cache, clbk) {
@@ -492,6 +499,7 @@ API.prototype = {
 };
 
 
+exports.init              = init;
 exports.get_repos         = get_repos;
 exports.get_repo_info     = get_repo_info;
 exports.get_build_history = get_build_history;

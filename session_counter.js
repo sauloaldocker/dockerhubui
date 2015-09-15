@@ -1,36 +1,33 @@
-var    cookieParser     = require( 'cookie-parser'   ),
-       cookieSession    = require( 'cookie-session'  ),
-       storage          = require( 'node-persist'    ),
-	   time             = require( 'time'            ),
-	   path             = require( 'path'            )
-	   ;
+var cookieParser     = require( 'cookie-parser'   ),
+    cookieSession    = require( 'cookie-session'  ),
+    storage          = require( 'node-persist'    ),
+	time             = require( 'time'            )
+	;
 
-var logger  = require('./logger.js' );
+var logger           = require('./logger.js' );
 
-var NUM_VIEWS    = 0;
-var NUM_SESSIONS = 0;
+var NUM_VIEWS        = 0;
+var NUM_SESSIONS     = 0;
 
 function init(app) {
     app.mods.cookieParser     = cookieParser;
     app.mods.cookieSession    = cookieSession;
     app.mods.storage          = storage;
 
-    var tmp_folder = path.join( __dirname, 'sessions' );
-    logger('tmp_folder', tmp_folder);
-    storage.initSync({dir: tmp_folder, ttl: false, loggin: true});
+    storage.initSync( app.conf.session_counter );
 
-    app.use(cookieParser('ILuvCookies'));
+    app.use(cookieParser(app.conf.session_counter.secret));
 
     app.use(
         cookieSession(
             {
-                name: 'dockerhubuibiodocker',
-                keys: ['firstvisit', new time.Date()]
+                name: app.conf.session_counter.session_name,
+                keys: ['server_start', new time.Date()]
             }
         )
     );
 
-    app.set('trust proxy', 1); // trust first proxy
+    app.set('trust proxy', app.conf.session_counter.trust_proxy); // trust first proxy
     
     app.use(session_keeper);
 
@@ -70,6 +67,7 @@ function session_keeper(req, res, next) {
   //res.end(req.session.views + ' views')
   next();
 }
+
 
 function get_usage(req,res) { 
     logger("reporting sever usage: sessions:", NUM_SESSIONS, "views:", NUM_VIEWS);

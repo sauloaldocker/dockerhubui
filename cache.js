@@ -1,10 +1,19 @@
-var storage          = require( 'node-persist' );
-var path             = require( 'path'         );
-var logger           = require('./logger.js'   );
+var storage          = require( 'node-persist' ),
+    path             = require( 'path'         ),
+    logger           = require( './logger.js'  );
 
-var tmp_folder       = path.join( __dirname, 'storage' );
+var storage_defaults = {
+    dir   : path.join( __dirname, 'storage' ), 
+    ttl   : 24 * 60 * 60 * 1000, // 1 day 
+    loggin: true
+};
 
-logger('storage folder', tmp_folder);
+
+function init(app) {
+    storage_defaults = app.conf.cache; 
+    logger('storage_defaults', storage_defaults);
+}
+
 
 //storage.setItemSync('test', 'test');
 
@@ -24,9 +33,15 @@ cache.prototype.add_db = function(db, clbk) {
     } else {
         logger('cache.add: creating cache for db', db);
     
-        var db_folder = path.join( tmp_folder, db );
-        var myStorage = storage.create({dir: db_folder, ttl: this.cache_timeout, loggin: true});
-            myStorage.initSync();
+        var storate_opts = JSON.parse(JSON.stringify(storage_defaults));
+        storate_opts.dir = path.join( storage_defaults.dir, db );
+        storate_opts.ttl = this.cache_timeout;
+
+        logger('storate_opts', storate_opts);
+        
+        var myStorage = storage.create(storate_opts);
+        
+        myStorage.initSync();
     
         this.data[db] = myStorage;
         
@@ -107,7 +122,8 @@ cache.prototype.set   = function(db, key, val, clbk) {
 
 cache.prototype.sanitize = function(n) {
     return n.replace('.', '_').replace('-', '_').replace('+', '_').replace('/', '_').replace('\\', '_').replace(' ', '_').replace('__', '_').replace('__', '_').toLowerCase();
-}
+};
 
 
+exports.init   = init;
 exports.cache  = cache;

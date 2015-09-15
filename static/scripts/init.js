@@ -7,6 +7,7 @@
 /* global COL_TYPES     */
 /* global chain_repos   */
 /* global get_usage     */
+/* global get_title     */
 
 $(document).ready(function(){
     init( finish );
@@ -33,6 +34,8 @@ function init( clbk ) {
     console.log('initing');
     
     get_usage("num_sessions", "num_views");
+    get_title("title_title" );
+    get_title("header_title");
 
     var $container = $("#"+CONTAINER);
     

@@ -5,6 +5,20 @@
 /* global COL_TYPES     */
 /* global format_date   */
 
+function get_title(dst_id_title) {
+    //get_title("header_title");
+    console.log("getting title data");
+    $.getJSON( "/title/", 
+        function(data) {
+            console.log("got title:", data);
+            var title = data.title;
+
+            document.getElementById(dst_id_title).innerHTML = title;
+        }
+    );
+    
+}
+
 function get_usage(dst_id_sessions, dst_id_views) {
     console.log("getting usage data");
     $.getJSON( "/usage/", 

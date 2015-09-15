@@ -1,5 +1,5 @@
-var swig    = require( 'swig'       );
-var logger  = require('./logger.js' );	
+var swig    = require( 'swig'        );
+var logger  = require( './logger.js' );	
 	
 function init(app) {
     app.mods.swig             = swig;
@@ -7,11 +7,11 @@ function init(app) {
     // This is where all the magic happens!
     app.engine('html', swig.renderFile);
     
-    app.set( 'view engine', 'html'                   );
-    app.set( 'views'      , __dirname + '/templates' );
-    app.set( 'view cache' , false                    );
+    app.set( 'view engine', 'html'                        );
+    app.set( 'views'      , app.conf.swig.template_folder );
+    app.set( 'view cache' , app.conf.swig.view_cache      );
 
-    swig.setDefaults({ cache: false });
+    swig.setDefaults({ cache: app.conf.swig.cache });
     
     swig.setFilter( 'sanitize'              , sanitize               );
     swig.setFilter( 'parse_date'            , parse_date             );

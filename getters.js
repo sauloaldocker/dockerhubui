@@ -1,5 +1,32 @@
 var dockerhub = require( './dockerhub.js' );
-var logger    = require('./logger.js'     );
+var logger    = require( './logger.js'    );
+
+
+function init(app) {
+    dockerhub.init(app);
+
+    //Set routes 
+    app.get(    '/repos/:username/'                      , get_repos        );
+    app.get(    '/info/:username/:reponame/'             , get_repo_info    );
+    app.get(    '/history/:username/:reponame/'          , get_repo_history );
+    app.get(    '/logs/:username/:reponame/:build_code/' , get_build_log    );
+    app.get(    '/xml/:username/'                        , dynamic_xml      );
+    app.get(    '/html/:username/'                       , dynamic_html     );
+    app.get(    '/title/'                                , get_title        );
+    app.get(    '/permissions/'                          , get_permissions  );
+
+    //app.get(    '/update/'                               , update           );    
+}
+
+
+function get_title(req,res) { 
+    res.json({"title": req.app.conf.APP_TITLE});
+}
+
+
+function get_permissions(req,res) { 
+    res.json({"allowed": req.app.conf.ALLOWED_REPOS, "forbidden": req.app.conf.FORBIDDEN_REPOS});
+}
 
 
 function send_data(hit_cache, res, data) {
@@ -382,7 +409,8 @@ function render_dynamic(req, res, file, render_as) {
                     num_sessions : req.app.mods.sessionCounter.get_num_sessions_sync(),
                     num_views    : req.app.mods.sessionCounter.get_num_views_sync(),
                     DOCKERHUB_URL: req.app.conf.DOCKERHUB_URL,
-                    GIT_URL      : req.app.conf.GIT_URL
+                    GIT_URL      : req.app.conf.GIT_URL,
+                    APP_TITLE    : req.app.conf.APP_TITLE
                 }
             );
         } else {
@@ -440,8 +468,10 @@ function get_users(src, dst, ind, app, clbk) {
                 
                 if (ind == (src.length - 1)) {
                     clbk(true)
+
                 } else {
                     get_users(src, dst, ind+1, app, clbk);
+
                 }
             }
         }
@@ -527,6 +557,7 @@ function add_filter( filter, func ) {
 }
 
 
+exports.init             = init;
 exports.getter           = add_filter( filter_username, getter           );
 exports.get_repos        = add_filter( filter_username, get_repos        );
 exports.get_repo_info    = add_filter( filter_username, get_repo_info    );

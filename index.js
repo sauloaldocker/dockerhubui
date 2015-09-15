@@ -1,5 +1,5 @@
-var ip                    = process.env.IP              || "0.0.0.0";
-var port                  = process.env.PORT            || 8080;
+var ip                    = process.env.IP              || process.env.OPENSHIFT_NODEJS_IP   || "0.0.0.0";
+var port                  = process.env.PORT            || process.env.OPENSHIFT_NODEJS_PORT || 8080;
 var DOCKERHUB_URL         = process.env.DOCKERHUB_URL   || 'https://hub.docker.com/';
 var GIT_URL               = process.env.GIT_URL         || 'https://github.com/';
 var DEBUG                 = process.env.DEBUG           || false;

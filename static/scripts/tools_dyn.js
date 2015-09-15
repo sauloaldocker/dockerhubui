@@ -1,13 +1,18 @@
 /* global gen_pre      */
 /* global get_logs_raw */
 
-function show_logs(src) {
-    get_logs_str(src, show_logs_success, show_logs_failure);
+function show_logs(key, src) {
+    get_logs_str(src, 
+        function(data) { 
+            show_logs_success(key, data) 
+            
+        }, 
+        function(data) {
+            show_logs_failure(key, data)
+        }
+    );
 }
 
-function show_dockerfile(src) {
-    get_logs_str(src, show_dockerfile_success, show_dockerfile_failure);
-}
 
 function get_logs_str(src, clbk_success, clbk_failure) {
     var repo_full_name = src.getAttribute('repo_full_name');
@@ -22,23 +27,15 @@ function get_logs_str(src, clbk_success, clbk_failure) {
     }
 }
 
-function show_logs_success(logs) {
-    console.log('success getting log');
-    display_popup(gen_pre(logs.logs));
+function show_logs_success(key, logs) {
+    console.log('success getting log', key);
+    display_popup(gen_pre(logs[key]));
 }
 
-function show_logs_failure(logs) {
-    alert('error downloading logs', logs);
+function show_logs_failure(key, logs) {
+    alert('error downloading logs', key, logs);
 }
 
-function show_dockerfile_success(logs) {
-    console.log('success getting dockerfile');
-    display_popup(gen_pre(logs.dockerfile_contents));
-}
-
-function show_dockerfile_failure(logs) {
-    alert('error downloading dockerfile', logs);
-}
 
 function show_popup(el) {
     console.log("popping");

@@ -93,11 +93,11 @@
             
             {% if last_build.build_code %}
             <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs">
-                <button class="button" onclick="show_logs(this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show logs</button>
+                <button class="button" onclick="show_logs('logs'               , this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show logs</button>
             </td>
             
             <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents">
-                <button class="button" onclick="show_dockerfile(this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show dockerfile</button>
+                <button class="button" onclick="show_logs('dockerfile_contents', this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show dockerfile</button>
             </td>
             {% else %}
             <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs"></td>
@@ -106,8 +106,22 @@
 
             <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user">{{ build_results.docker_user }}</td>
             <td class="repo_history_last_build_results_docker_tag"          id="{{tr_id}}_repo_history_last_build_results_docker_tag"          name="repo_history_last_build_results_docker_tag">{{ build_results.docker_tag }}</td>
-            <td class="repo_history_last_build_results_failure"             id="{{tr_id}}_repo_history_last_build_results_failure"             name="repo_history_last_build_results_failure">{{ build_results.failure }}</td>
-            <td class="repo_history_last_build_results_error"               id="{{tr_id}}_repo_history_last_build_results_error"               name="repo_history_last_build_results_error">{{ build_results.error }}</td>
+            
+            {% if build_results.failure %}
+            <td class="repo_history_last_build_results_failure"             id="{{tr_id}}_repo_history_last_build_results_failure"             name="repo_history_last_build_results_failure">
+                <button class="button" onclick="show_logs('failure', this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show failure</button>
+            </td>
+            {% else  %}
+            <td class="repo_history_last_build_results_failure"             id="{{tr_id}}_repo_history_last_build_results_failure"             name="repo_history_last_build_results_failure"></td>
+            {% endif %}
+            
+            {% if build_results.error %}
+            <td class="repo_history_last_build_results_error"               id="{{tr_id}}_repo_history_last_build_results_error"               name="repo_history_last_build_results_error">
+                <button class="button" onclick="show_logs('error', this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show error</button>
+            </td>
+            {% else  %}
+            <td class="repo_history_last_build_results_error"               id="{{tr_id}}_repo_history_last_build_results_error"               name="repo_history_last_build_results_error"></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

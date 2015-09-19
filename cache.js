@@ -20,6 +20,8 @@ function init(app) {
 var cache = function(cache_timeout) {
     this.cache_timeout = cache_timeout || 0; // no cache
     this.data          = {};
+    this.cache_id      = (new Date()).getTime();
+    logger('initializing cache: id:', this.cache_id);
 };
 
 cache.prototype.add_db = function(db, clbk) {
@@ -37,7 +39,7 @@ cache.prototype.add_db = function(db, clbk) {
         storate_opts.dir = path.join( storage_defaults.dir, db );
         storate_opts.ttl = this.cache_timeout;
 
-        logger('storate_opts', storate_opts);
+        //logger('storate_opts', storate_opts);
         
         var myStorage = storage.create(storate_opts);
         

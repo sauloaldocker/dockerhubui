@@ -166,57 +166,120 @@ function update(req,res) {
 }
 
 
-function getter(req,res) { 
+function get_all(req,res) {
     var username = req.params.username;
 
     logger("req"             , req.params);
     logger("getting username", username  );
     
-    get_all(username, function(data) {
-        send_data(res, data);
-    });
+    var no_cache = false;
+    
+    get_all_username(username, req.app, no_cache,
+        function(data) {
+            if ( data.status == 1 ) {
+                var repos = data.data;
+                get_all_repo(username, repos, req.app, no_cache,
+                    function(data) {
+                        send_data(res, data);
+                    }
+                );
+            } else {
+                send_data(res, data);
+            }
+        }
+    );
 }
 
-function get_all(username, app, callback) {
+
+function get_all_users(src, dst, ind, app, no_cache, clbk) {
+    var username = src[ind];
+    
+    logger("get_users: src", src, 'dst', dst, 'ind', ind, 'no_cache', no_cache, 'username', username);
+    
+    get_all_username(username, app, no_cache,
+        function get_all_username_callback(data) {
+            logger('render_dynamic: converting to html');
+            
+            if ( data.status == 1 ) {
+                var repos = data.data;
+                
+                get_all_repo(username, repos, app, no_cache,
+                    function get_all_repo_callback(data) {
+                        if ( data.status != 0 ) {
+                            logger('render_dynamic: error getting data', data);
+                            clbk(false);
+                            
+                        } else {
+                            logger('render_dynamic: success getting data');
+
+                            var results    = data.data.results;
+                            var cache_time = data.data.cache_time;
+                            
+                            results.sort(compare_info);
+            
+                            dst.push([results, cache_time, username]);
+                            
+                            if (ind == (src.length - 1)) {
+                                clbk(true);
+            
+                            } else {
+                                get_all_users(src, dst, ind+1, app, no_cache, clbk);
+            
+                            }
+                        }
+                    }
+                );
+            } else {
+                logger('render_dynamic: error getting data', data);
+                clbk(false);
+            }
+        }
+    );
+}
+
+
+function get_all_username(username, app, no_cache, callback) {
     var data = {
         "username"   : username,
         "status"     : 1,
         "status_desc": "getting data"
     };
     
-    logger('get_all: username', username);
+    logger('get_all_username: username', username);
     
-    dockerhub.get_repos(username, false,
-        function (hit_cache, repos) {
+    dockerhub.get_repos(username, no_cache,
+        function get_repos_callback(hit_cache, repos) {
 
-            logger('get_all: username', username, 'repos');
+            logger('get_all_username: username', username, 'repos');
 
             if (!repos) {
-                logger('get_all: username', username, "no repos");
+                logger('get_all_username: username', username, "no repos");
                 
                 data.status      = 2;
                 data.status_desc = "error getting list of repositories";
                 
                 callback(data);
+
                 return;
             }
             
-            logger('get_all: username', username, "success getting repository list");
+            logger('get_all_username: username', username, "success getting repository list");
             
             if ( app.conf.DEBUG ) {
-                logger('get_all: username', username, "got repos", 'DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
+                logger('get_all_username: username', username, "got repos", 'DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
                 if ( repos.results.length > 2 ) {
                     repos.results = [ repos.results[2] ];
+
                 } else
                 if ( repos.results.length > 1 ) {
                     repos.results = [ repos.results[1] ];
+
                 }
             }
-            
-            
+
             var repo_list = repos.results;
 
-            logger('get_all: username', username, "got repos", "# repos", repo_list.length);
+            logger('get_all_username: username', username, "got repos", "# repos", repo_list.length);
 
             if (repo_list.length == 0) {
                 logger('get_all: username', username, "got repos", "zero repos");
@@ -225,126 +288,156 @@ function get_all(username, app, callback) {
                 data.status_desc = "no repositories";
                 
                 callback(data);
+
+            } else {
+                logger('get_all: username', username, "got repos", repo_list.length, "repos");
+                data.data        = repos;
+                callback(data);
+
+            }
+        }
+    );
+}
+
+
+function get_all_repo(username, repos, app, no_cache, callback) {
+    var data = {
+        "username"   : username,
+        "status"     : 1,
+        "status_desc": "getting data"
+    };
+
+
+    if ( app.conf.DEBUG ) {
+        logger('get_all_username: username', username, "got repos", 'DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
+        if ( repos.results.length > 2 ) {
+            repos.results = [ repos.results[2] ];
+
+        } else
+        if ( repos.results.length > 1 ) {
+            repos.results = [ repos.results[1] ];
+
+        }
+    }
+
+    //logger('get_all_username: username', username, "repos", repos);
+    var repo_list = repos.results;
+    //logger('get_all_username: username', username, "repo list", repo_list);
+
+    function info_getter(el, clbk) {
+        logger('get_all_username: username', username, "getting info");
+        
+        var repo_name      = el.name;
+        var repo_space     = el.namespace;
+        var repo_name_full = repo_space + '/' + repo_name;
+
+        dockerhub.get_repo_info(repo_name_full, no_cache, clbk);
+    }
+
+    _get_from_list_serial(repo_list, 'info', 0, info_getter, no_cache,
+        function _get_from_list_serial_callback(status, msg, list_size){
+            logger('get_all_username: username', username, "got info");
+            
+            if (!status) {
+                logger('get_all_username: username', username, "got info", "failed getting repository information");
+
+                data.status      = 4;
+                data.status_desc = "failed getting repository information. " + msg;
+
+                callback(data);
                 return;
             }
-
-
-            function info_getter(el, clbk) {
-                logger('get_all: username', username, "getting info");
+            
+            logger('get_all_username: username', username, "got info", "success getting repository information");
+            
+            function hist_getter(el, clbk) {
+                logger('get_all_username: username', username, "getting history");
                 
                 var repo_name      = el.name;
                 var repo_space     = el.namespace;
                 var repo_name_full = repo_space + '/' + repo_name;
 
-                dockerhub.get_repo_info(repo_name_full, false, clbk);
+                dockerhub.get_build_history(repo_name_full, no_cache, clbk);
             }
-
-            _get_from_list_serial(repo_list, 'info', 0, info_getter, false,
-                function(status, msg, list_size){
-                    logger('get_all: username', username, "got info");
+            
+            _get_from_list_serial(repo_list, 'history', 0, hist_getter, no_cache,
+                function _get_from_list_serial_callback(status, msg, list_size){
+                    logger('get_all_username: username', username, "got history");
                     
                     if (!status) {
-                        logger('get_all: username', username, "got info", "failed getting repository information");
-
-                        data.status      = 4;
-                        data.status_desc = "failed getting repository information. " + msg;
+                        logger('get_all_username: username', username, "got hist", "failed getting repository history");
+                        
+                        data.status      = 5;
+                        data.status_desc = "failed getting repository history. " + msg;
     
                         callback(data);
                         return;
                     }
                     
-                    logger('get_all: username', username, "got info", "success getting repository information");
-                    
+                    logger('get_all_username: username', username, "got hist", "success getting repository history");
 
-                    function hist_getter(el, clbk) {
-                        logger('get_all: username', username, "getting history");
+                    //logger(repo_list);
+                    var histories = [];
+                    for ( var r in repo_list ) {
+                        var rel = repo_list[r];
+                        var rhi = rel.history.results;
+                        logger('get_all_username: username', username, "got hist", "repo_list #",r,'name',rel.name,'namespace',rel.namespace, 'length', rhi.length);
+                        //logger('get_all: username', username, "got hist", "repo_list #",r,'rel',rel);
+                        //logger('get_all: username', username, "got hist", "repo_list #",r,'rhi',rhi);
+                        
+                        /*
+                        for (var h in rhi ) {
+                            //rhi[h].name      = rel.name;
+                            //rhi[h].namespace = rel.namespace;
+                            histories.push(rhi[h]);
+                        }
+                        */
+                        
+                        if ( rhi.length > 0 ) {
+                            rhi[0].name      = rel.name;
+                            rhi[0].namespace = rel.namespace;
+                            histories.push( rhi[0] );
+                            logger('get_all_username: username', username, "got hist", "repo_list #",r,'pushed');
+
+                        } else {
+                            logger('get_all_username: username', username, "got hist", "repo_list #",r,'has no history');
+                        }
+                    }
+
+                    //logger('get_all_username: username', username, "got hist", 'histories:', histories);
+
+                    function log_getter(el, clbk) {
+                        logger('get_all_username: username', username, "getting log");
                         
                         var repo_name      = el.name;
                         var repo_space     = el.namespace;
+                        var build_code     = el.build_code;
                         var repo_name_full = repo_space + '/' + repo_name;
         
-                        dockerhub.get_build_history(repo_name_full, false, clbk);
+                        dockerhub.get_build_log(repo_name_full, build_code, no_cache, clbk);
                     }
                     
-                    _get_from_list_serial(repo_list, 'history', 0, hist_getter, false,
-                        function(status, msg, list_size){
-                            logger('get_all: username', username, "got history");
-                            
+                    _get_from_list_serial(histories, 'log', 0, log_getter, no_cache,
+                        function _get_from_list_serial_callback(status, msg, list_size){
+                            logger('get_all_username: username', username, "got log");
                             if (!status) {
-                                logger('get_all: username', username, "got hist", "failed getting repository history");
+                                logger('get_all_username: username', username, "got log", "failed getting build log");
                                 
-                                data.status      = 5;
-                                data.status_desc = "failed getting repository history. " + msg;
+                                data.status      = 6;
+                                data.status_desc = "failed getting build log. " + msg;
             
                                 callback(data);
                                 return;
                             }
+
+                            logger('get_all_username: username', username, "got log", "success getting build log");
+
+                            data.status      = 0;
+                            data.status_desc = "success";
+                            data.data        = repos;
                             
-                            logger('get_all: username', username, "got hist", "success getting repository history");
-
-                            //logger(repo_list);
-                            var histories = [];
-                            for ( var r in repo_list ) {
-                                var rel = repo_list[r];
-                                var rhi = rel.history.results;
-                                logger('get_all: username', username, "got hist", "repo_list #",r,'name',rel.name,'namespace',rel.namespace, 'length', rhi.length);
-                                //logger('get_all: username', username, "got hist", "repo_list #",r,'rel',rel);
-                                //logger('get_all: username', username, "got hist", "repo_list #",r,'rhi',rhi);
-                                
-                                /*
-                                for (var h in rhi ) {
-                                    //rhi[h].name      = rel.name;
-                                    //rhi[h].namespace = rel.namespace;
-                                    histories.push(rhi[h]);
-                                }
-                                */
-                                
-                                if ( rhi.length > 0 ) {
-                                    rhi[0].name      = rel.name;
-                                    rhi[0].namespace = rel.namespace;
-                                    histories.push( rhi[0] );
-                                    logger('get_all: username', username, "got hist", "repo_list #",r,'pushed');
-                                } else {
-                                    logger('get_all: username', username, "got hist", "repo_list #",r,'has no history');
-                                }
-                            }
-
-                            //logger('get_all: username', username, "got hist", 'histories:', histories);
-
-                            function log_getter(el, clbk) {
-                                logger('get_all: username', username, "getting log");
-                                
-                                var repo_name      = el.name;
-                                var repo_space     = el.namespace;
-                                var build_code     = el.build_code;
-                                var repo_name_full = repo_space + '/' + repo_name;
-                
-                                dockerhub.get_build_log(repo_name_full, build_code, false, clbk);
-                            }
-                            
-                            _get_from_list_serial(histories, 'log', 0, log_getter, false,
-                                function(status, msg, list_size){
-                                    logger('get_all: username', username, "got log");
-                                    if (!status) {
-                                        logger('get_all: username', username, "got log", "failed getting build log");
-                                        
-                                        data.status      = 6;
-                                        data.status_desc = "failed getting build log. " + msg;
-                    
-                                        callback(data);
-                                        return;
-                                    }
-
-                                    logger('get_all: username', username, "got log", "success getting build log");
-
-                                    data.status      = 0;
-                                    data.status_desc = "success";
-                                    data.data        = repos;
-                                    
-                                    callback(data);
-                                    return;
-                                }
-                            );
+                            callback(data);
+                            return;
                         }
                     );
                 }
@@ -360,7 +453,7 @@ function _get_from_list_serial(list, key, list_pos, func, no_cache, clbk) {
     var list_size = list.length;
 
     func(list[list_pos], 
-        function(hit_cache, res) {
+        function _get_from_list_serial_func_callback(hit_cache, res) {
             if (!res) {
                 logger('_get_from_list_serial: key', key, 'list_pos', list_pos, 'no_cache', no_cache, "no res #", list_pos + 1, "/", list_size, ' key: ', key);
                 clbk(false, "error getting res: " + list_size, list_size);
@@ -384,7 +477,7 @@ function _get_from_list_serial(list, key, list_pos, func, no_cache, clbk) {
 }
 
 
-function render_dynamic(req, res, file, render_as) {
+function render_dynamic(req, res, file, render_as, no_cache) {
     var username = req.params.username;
 
     logger("render_dynamic: req"             , req.params);
@@ -394,12 +487,10 @@ function render_dynamic(req, res, file, render_as) {
 
     var all_results = [];
 
-    var clbk = function(success) {
+    var clbk = function render_dynamic_callback(success) {
         if (success) {
             res.set('Content-Type', 'text/'+render_as);
 
-            //logger(results[0]);
-    
             logger('render_dynamic: rendering');
             res.render(
                 file, 
@@ -442,50 +533,21 @@ function render_dynamic(req, res, file, render_as) {
     };
 
     var users = username.split("|");
-    get_users(users, all_results, 0, req.app, clbk);
+    get_all_users(users, all_results, 0, req.app, no_cache, clbk);
 }
 
-function get_users(src, dst, ind, app, clbk) {
-    var usr = src[ind];
-    logger("get_users: src", src, 'dst', dst, 'ind', ind, 'usr', usr);
-    
-    get_all(usr, app,
-        function(data){
-            logger('render_dynamic: converting to html');
-            
-            if ( data.status != 0 ) {
-                logger('render_dynamic: error getting data', data);
-                clbk(false);
-                
-            } else {
-                logger('render_dynamic: success getting data');
-                var results    = data.data.results;
-                var cache_time = data.data.cache_time;
-                
-                results.sort(compare_info);
-
-                dst.push([results, cache_time, usr]);
-                
-                if (ind == (src.length - 1)) {
-                    clbk(true)
-
-                } else {
-                    get_users(src, dst, ind+1, app, clbk);
-
-                }
-            }
-        }
-    );
-}
 
 function dynamic_xml(req,res) {
-    render_dynamic(req, res, 'base', 'xml');
+    var no_cache = false;
+    render_dynamic(req, res, 'base', 'xml', no_cache);
 }
 
 
 function dynamic_html(req,res) {
-    render_dynamic(req, res, 'index', 'html');
+    var no_cache = false;
+    render_dynamic(req, res, 'index', 'html', no_cache);
 }
+
 
 function compare_info(a,b) {
     if (a.name < b.name) {
@@ -550,6 +612,7 @@ function filter_username(req, res, func) {
     }
 }
 
+
 function add_filter( filter, func ) {
     return function (req, res) {
         filter(req, res, func);
@@ -558,7 +621,12 @@ function add_filter( filter, func ) {
 
 
 exports.init             = init;
-exports.getter           = add_filter( filter_username, getter           );
+
+exports.get_all_users    = get_all_users;
+exports.get_all_username = get_all_username;
+exports.get_all_repo     = get_all_repo;
+
+exports.get_all          = add_filter( filter_username, get_all          );
 exports.get_repos        = add_filter( filter_username, get_repos        );
 exports.get_repo_info    = add_filter( filter_username, get_repo_info    );
 exports.get_repo_history = add_filter( filter_username, get_repo_history );

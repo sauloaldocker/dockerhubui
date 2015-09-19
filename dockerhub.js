@@ -17,8 +17,13 @@ var cacher                = null;
 
 
 function init(app) {
-    cache.init(app);
-    cacher = new cache.cache(CACHE_TIMEOUT);
+    if ( ! ( 'cacher' in app.mods ) ) {
+        cache.init(app);
+        app.mods.cacher = new cache.cache(CACHE_TIMEOUT);
+    }
+    
+    this.cacher = app.mods.cacher;
+    cacher      = app.mods.cacher;
 }
 
 
@@ -305,23 +310,32 @@ function webhook_callback(callback_url, status) {
     logger("calling back webhook");
 
     var form = {
-        "state"      : status ? "success" : "failure",
-        "description": "failed CI",
+        "state"      : status ? "success"   : "failure",
+        "description": status ? "success CI": "failed CI",
         "context"    : "biodocker dockerhub dashboard",
         "target_url" : "http://google.com"
     };
     
     logger("calling back webhook", form);
     
-    request.post({"url": callback_url, "form": JSON.stringify(form), "header": { "Content-Type":"application/json; charset=UTF-8" }},
+    request.post(
+        {
+            "url"   : callback_url, 
+            "form"  : JSON.stringify(form), 
+            "header": { 
+                "Content-Type":"application/json; charset=UTF-8" 
+            }
+        },
         function(error, response, body){
             if (error) {
                 logger("error returning to dockerhub webhook", error, response.headers);
-                return;
+                
+            } else {
+                logger("success returning to dockerhub webhook", response.headers, body);
+                
             }
-            logger("success returning to dockerhub webhook", response.headers, body);
-            
-    });
+        }
+    );
 }
 
 

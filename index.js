@@ -2,26 +2,30 @@ var express               = require( 'express'              ),   //Web framework
     request               = require( 'request'              )    //Web request
 	;
 
-var expresser             = require( './expresser.js'       ),
+var config                = require( './config.js'          ),
+    expresser             = require( './expresser.js'       ),
     getters               = require( './getters.js'         ),
     logger                = require( './logger.js'          ),
+    putters               = require( './putters.js'         ),
     sessionCounter        = require( './session_counter.js' ),
-    swigger               = require( './swigger.js'         ),
-    config                = require( './config.js'          )
+    swigger               = require( './swigger.js'         )
     ;
 
 var app                   = express();
 
-app.mods                  = {};
-app.mods.console          = console;
-app.mods.express          = express;
-app.mods.request          = request;
+app.mods = {
+    console        : console,
+    express        : express,
+    request        : request,
 
-app.mods.expresser        = expresser;
-app.mods.getters          = getters;
-app.mods.logger           = logger;
-app.mods.sessionCounter   = sessionCounter;
-app.mods.swigger          = swigger;
+    expresser      : expresser,
+    getters        : getters,
+    logger         : logger,
+    putters        : putters,
+    sessionCounter : sessionCounter,
+    swigger        : swigger
+};
+
 
 config(app);
 
@@ -51,7 +55,9 @@ app.mods.sessionCounter.init(app); //Cookies and user count
 
 app.mods.swigger.init(app);        //Swig
 
-app.mods.getters.init(app);        //Endpoints
+app.mods.getters.init(app);        //Get Endpoints
+
+app.mods.putters.init(app);        //Put Endpoints
 
 app.mods.expresser.init(app);      //Express
 

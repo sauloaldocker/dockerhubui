@@ -1,10 +1,10 @@
 var cookieParser     = require( 'cookie-parser'   ),
     cookieSession    = require( 'cookie-session'  ),
     storage          = require( 'node-persist'    ),
-	time             = require( 'time'            )
+	time             = require( 'time'            ),
+    logger           = require( './logger.js'     )
 	;
 
-var logger           = require('./logger.js' );
 
 var NUM_VIEWS        = 0;
 var NUM_SESSIONS     = 0;
@@ -41,8 +41,8 @@ function init(app) {
     NUM_SESSIONS = get_num_sessions_sync();
     NUM_VIEWS    = get_num_views_sync();
     
-    logger('NUM_SESSIONS', NUM_SESSIONS);
-    logger('NUM_VIEWS'   , NUM_VIEWS   );
+    logger(3, 'NUM_SESSIONS', NUM_SESSIONS);
+    logger(3, 'NUM_VIEWS'   , NUM_VIEWS   );
 }
 
 
@@ -50,28 +50,28 @@ function init(app) {
 function session_keeper(req, res, next) {
   // Update views
   if (req.url == '/') {
-    //logger("req url", req.url);
+    //logger(3, "req url", req.url);
     req.session.views = (req.session.views || 0) + 1;
-    //logger("req", req);
-    //logger("req session", JSON.stringify(req.session));
-    //logger("req session views", req.session.views);
+    //logger(3, "req", req);
+    //logger(3, "req session", JSON.stringify(req.session));
+    //logger(3, "req session views", req.session.views);
 
     var cookie_id = req.cookies.dockerhubuibiodocker;
 
-    logger("req cookie_id", cookie_id);
+    logger(3, "req cookie_id", cookie_id);
 
     if (req.session.isNew) {
-        logger("adding session");
+        logger(3, "adding session");
         add_session(cookie_id);
         add_view();
 
     } {
-        logger("adding view");
+        logger(3, "adding view");
         add_view();
 
     }
   } else {
-      logger("req url", req.url);
+      logger(3, "req url", req.url);
 
   }
   // Write response
@@ -81,7 +81,7 @@ function session_keeper(req, res, next) {
 
 
 function get_usage(req,res) { 
-    logger("reporting sever usage: sessions:", NUM_SESSIONS, "views:", NUM_VIEWS);
+    logger(3, "reporting sever usage: sessions:", NUM_SESSIONS, "views:", NUM_VIEWS);
     res.json({"num_sessions": NUM_SESSIONS || -1, "num_views": NUM_VIEWS || -1});
 }
 
@@ -99,22 +99,22 @@ function set_num_sessions(val, clbk) {
 }
 
 function add_session() {
-    logger('adding session');
+    logger(3, 'adding session');
     get_num_sessions(
         function(err, num_sessions) {
             if (err) {
-                logger("adding session :: error getting num_sessions", num_sessions);
+                logger(3, "adding session :: error getting num_sessions", num_sessions);
                 return;
             }
             if (!num_sessions) {
-                logger("adding session :: no num_sessions", num_sessions);
+                logger(3, "adding session :: no num_sessions", num_sessions);
                 num_sessions = 0;
             }
             set_num_sessions(num_sessions+1,
                 function (err) {
                     if (!err) {
                         NUM_SESSIONS = num_sessions+1;
-                        logger("adding session :: new session", num_sessions+1);
+                        logger(3, "adding session :: new session", num_sessions+1);
                     } else {
                         console.error("adding session :: error adding num_sessions", err);
                     }
@@ -137,22 +137,22 @@ function set_num_views(val, clbk) {
 }
 
 function add_view() {
-    logger('adding view');
+    logger(3, 'adding view');
     get_num_views(
         function(err, num_views) {
             if (err) {
-                logger("adding view :: error getting num_views", err);
+                logger(3, "adding view :: error getting num_views", err);
                 return;
             }
             if (!num_views) {
-                logger("adding view :: no num_views", err);
+                logger(3, "adding view :: no num_views", err);
                 num_views = 0;
             }
-            logger("adding view :: got num_views", num_views);
+            logger(3, "adding view :: got num_views", num_views);
             set_num_views( num_views+1, 
                 function(err) {
                     if (!err) {
-                        logger("adding view :: set num_views", num_views+1);
+                        logger(3, "adding view :: set num_views", num_views+1);
                         NUM_VIEWS = num_views+1;
                     } else {
                         console.error("adding view :: error adding num_views", err);

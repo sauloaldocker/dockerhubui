@@ -29,7 +29,7 @@ function init(app) {
 
 
 function get_repos(username, no_cache, clbk) {
-    logger('dockerhub.get_repos: username', username, 'no_cache', no_cache);
+    logger(2, 'dockerhub.get_repos: username', username, 'no_cache', no_cache);
     var cache_name = 'repos';
     var cache_key  = username;
     var func       = get_repos;
@@ -53,26 +53,26 @@ function get_repos(username, no_cache, clbk) {
     request.get({"url": "https://hub.docker.com/v2/repositories/"+username+"/?page_size=1000", "json": true},
         function (error, response, data) {
             if (error) {
-                logger('dockerhub.get_repos: username', username, 'no_cache', no_cache, "error getting repos", error, data);
+                logger(3, 'dockerhub.get_repos: username', username, 'no_cache', no_cache, "error getting repos", error, data);
                 clbk( false, null );
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger('dockerhub.get_repos: username', username, 'no_cache', no_cache, "error getting repos. wrong type", response.headers['content-type'], data, response.request.uri.path);
+                logger(3, 'dockerhub.get_repos: username', username, 'no_cache', no_cache, "error getting repos. wrong type", response.headers['content-type'], data, response.request.uri.path);
                 clbk( false, null );
                 return;
             }
             
             //logger("success getting repos", response.request.uri.path, repos);
-            logger('dockerhub.get_repos: username', username, 'no_cache', no_cache, "success getting repos", response.request.uri.path);
+            logger(3, 'dockerhub.get_repos: username', username, 'no_cache', no_cache, "success getting repos", response.request.uri.path);
             //logger("success getting repos", response.headers);
 
             //{"next": "https://hub.docker.com/v2/repositories/sauloal/?page=2", "previous": null, "results": [{"user": "sauloal", "name": "kivy", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 38, "last_updated": "2014-04-23T16:54:03Z"}, {"user": "sauloal", "name": "gateone", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 12, "last_updated": "2014-09-10T22:17:30.239514Z"}, {"user": "sauloal", "name": "ajenti", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 50, "last_updated": "2014-09-12T22:27:59.454820Z"}, {"user": "sauloal", "name": "shipyard", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": false, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T21:26:50Z"}, {"user": "sauloal", "name": "shipyardauto", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 14, "last_updated": "2014-07-08T21:48:06Z"}, {"user": "sauloal", "name": "supervisor", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 19, "last_updated": "2014-07-08T22:22:31Z"}, {"user": "sauloal", "name": "allbio", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 10, "last_updated": "2014-07-08T23:09:50Z"}, {"user": "sauloal", "name": "mongo", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-08T22:53:45Z"}, {"user": "sauloal", "name": "mongoapi", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 24, "last_updated": "2014-07-08T23:15:43Z"}, {"user": "sauloal", "name": "mongoapistats", "namespace": "sauloal", "status": 1, "description": "", "is_private": false, "is_automated": true, "can_edit": false, "star_count": 0, "pull_count": 18, "last_updated": "2014-07-13T14:53:49Z"}]}
             
             data.cache_time = (new Date()).getTime();
             cacher.set(cache_name, cache_key, data, function(err) {
-                logger('dockerhub.get_repos: username', username, 'no_cache', no_cache, "saved to cache. err:", err);
+                logger(3, 'dockerhub.get_repos: username', username, 'no_cache', no_cache, "saved to cache. err:", err);
                 if (err) {
                 }
                 clbk( false, data );
@@ -107,18 +107,18 @@ function get_repo_info(repo_name, no_cache, clbk) {
     request.get({"url": "https://hub.docker.com/v2/repositories/"+repo_name+"/?page_size=1000", "json": true},
         function name(error, response, data) {
             if (error) {
-                logger("error getting build info", error, data);
+                logger(3, "error getting build info", error, data);
                 clbk( false, null );
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting build info. wrong type", response.headers['content-type'], response.request.uri.path, data);
+                logger(3, "error getting build info. wrong type", response.headers['content-type'], response.request.uri.path, data);
                 clbk( false, null );
                 return;
             }
             
-            logger("success getting build info", response.request.uri.path);
+            logger(3, "success getting build info", response.request.uri.path);
             //logger("success getting build info", response.headers);
 
             data.cache_time = (new Date()).getTime();
@@ -170,18 +170,18 @@ function get_build_history(repo_name, no_cache, clbk) {
     request.get({"url": "https://hub.docker.com/v2/repositories/"+repo_name+"/buildhistory/?page_size=1000", "json": true},
         function (error, response, data) {
             if (error) {
-                logger("error getting build history", error, data);
+                logger(3, "error getting build history", error, data);
                 clbk( false, null );
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting build history. wrong type", response.headers['content-type'], data, response.request.uri.path);
+                logger(3, "error getting build history. wrong type", response.headers['content-type'], data, response.request.uri.path);
                 clbk( false, null );
                 return;
             }
             
-            logger("success getting build history", response.request.uri.path);
+            logger(3, "success getting build history", response.request.uri.path);
             //logger("success getting build history", response.request.uri.path, build_history);
             //logger("success getting build history", response);
 
@@ -231,18 +231,18 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
     request.get({"url": "https://hub.docker.com/v2/repositories/"+repo_name+"/buildhistory/"+build_id+"/", "json": true},
         function (error, response, data) {
             if (error) {
-                logger("error getting build log", error, data);
+                logger(3, "error getting build log", error, data);
                 clbk( false, null );
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting build log. wrong type", response.headers['content-type'], data, response.request.uri.path);
+                logger(3, "error getting build log. wrong type", response.headers['content-type'], data, response.request.uri.path);
                 clbk( false, null );
                 return;
             }
             
-            logger("success getting build log:", response.request.uri.path);
+            logger(3, "success getting build log:", response.request.uri.path);
             //logger("success getting build log:", build_log, response.request.uri.path);
             //logger("success getting build log:", response.headers);
     
@@ -307,7 +307,7 @@ function get_build_log(repo_name, build_id, no_cache, clbk) {
 
 
 function webhook_callback(callback_url, status) {
-    logger("calling back webhook");
+    logger(2, "calling back webhook");
 
     var form = {
         "state"      : status ? "success"   : "failure",
@@ -316,7 +316,7 @@ function webhook_callback(callback_url, status) {
         "target_url" : "http://google.com"
     };
     
-    logger("calling back webhook", form);
+    logger(3, "calling back webhook", form);
     
     request.post(
         {
@@ -328,10 +328,10 @@ function webhook_callback(callback_url, status) {
         },
         function(error, response, body){
             if (error) {
-                logger("error returning to dockerhub webhook", error, response.headers);
+                logger(3, "error returning to dockerhub webhook", error, response.headers);
                 
             } else {
-                logger("success returning to dockerhub webhook", response.headers, body);
+                logger(3, "success returning to dockerhub webhook", response.headers, body);
                 
             }
         }
@@ -344,25 +344,25 @@ function webhook_callback(callback_url, status) {
  * REPOSITORY API
  */
 function _API_init_repo_token(clbk) {
-    logger("_API_init_repo_token: THIS:", this,  "REPO NAME:", this.repo_name);
+    logger(3, "_API_init_repo_token: THIS:", this,  "REPO NAME:", this.repo_name);
     var api_this = this;
 	request.get({"url": "https://index.docker.io/v1/repositories/"+this.repo_name+"/images", "json": true, "headers": {"X-Docker-Token": true}},
 		function (error, response, images) {
 			if (error) {
-				logger("error getting endpoint", error);
+				logger(3, "error getting endpoint", error);
 				clbk(null);
 				return;
 			}
 			
 			if (response.headers['content-type'] != "application/json") {
-				logger("error getting endpoint. wrong type", response.headers['content-type'], response);
+				logger(3, "error getting endpoint. wrong type", response.headers['content-type'], response);
 				clbk(null);
 				return;
 			}
 			
-			logger("success getting endpoint", response.request.uri.path);
+			logger(3, "success getting endpoint", response.request.uri.path);
 			
-            logger("_API_init_repo_token INSIDE: THIS:", api_this,  "REPO NAME:", api_this.repo_name);
+            logger(3, "_API_init_repo_token INSIDE: THIS:", api_this,  "REPO NAME:", api_this.repo_name);
 			
 			try {
 				var endpoint = response.headers['x-docker-endpoints'];
@@ -371,12 +371,12 @@ function _API_init_repo_token(clbk) {
                 api_this.endpoint = endpoint;
                 api_this.token    = token;
                 api_this.header   = {'Authorization': 'Token ' + token};
-				//logger("success getting endpoint", response.headers);
-				//logger("success getting endpoint uri", endpoint);
-				//logger("success getting endpoint token", token);
+				logger(4, "success getting endpoint", response.headers);
+				logger(4, "success getting endpoint uri", endpoint);
+				logger(4, "success getting endpoint token", token);
 			    
 			} catch(e) {
-				logger("error getting endpoint. no header", response.headers, response.headers['x-docker-endpoints'], response.headers['x-docker-token'], e);
+				logger(3, "error getting endpoint. no header", response.headers, response.headers['x-docker-endpoints'], response.headers['x-docker-token'], e);
 				clbk(null);
                 return;
                 
@@ -394,18 +394,18 @@ function _API_get_repo_tags(clbk){
     request.get({"url": "https://"+this.endpoint+"/v1/repositories/"+this.repo_name+"/tags", "json": true, "headers": this.header},
         function name(error, response, repo_tags) {
             if (error) {
-                logger("error getting repo tags", error);
+                logger(3, "error getting repo tags", error);
                 clbk(null);
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting repo tags. wrong type", response.headers['content-type'], repo_tags, response);
+                logger(3, "error getting repo tags. wrong type", response.headers['content-type'], repo_tags, response);
                 clbk(null);
                 return;
             }
             
-            logger("success getting repo tags", response.request.uri.path, repo_tags);
+            logger(3, "success getting repo tags", response.request.uri.path, repo_tags);
             
             clbk(repo_tags);
         }
@@ -417,18 +417,18 @@ function _API_get_repo_tag_img_id(tag_name, clbk) {
     request.get({"url": "https://"+this.endpoint+"/v1/repositories/"+this.repo_name+"/tags/"+tag_name, "json": true, "headers": this.header},
         function name(error, response, img_id) {
             if (error) {
-                logger("error getting build tag img id", error);
+                logger(3, "error getting build tag img id", error);
                 clbk(null);
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting build tag img id. wrong type", response.headers['content-type'], img_id, response);
+                logger(3, "error getting build tag img id. wrong type", response.headers['content-type'], img_id, response);
                 clbk(null);
                 return;
             }
             
-            logger("success getting build tag img id", response.request.uri.path, img_id);
+            logger(3, "success getting build tag img id", response.request.uri.path, img_id);
             clbk(img_id);
         }
     );
@@ -442,18 +442,18 @@ function _API_get_image_ancestry(img_id, clbk) {
     request.get({"url": "https://"+this.endpoint+"/v1/images/"+img_id+"/ancestry", "json": true, "headers": this.header},
         function name(error, response, img_ancestry) {
             if (error) {
-                logger("error getting build latest ancestry", error, img_ancestry);
+                logger(3, "error getting build latest ancestry", error, img_ancestry);
                 clbk(null);
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting build latest ancestry. wrong type", response.headers['content-type'], img_ancestry, response.request.uri.path);
+                logger(3, "error getting build latest ancestry. wrong type", response.headers['content-type'], img_ancestry, response.request.uri.path);
                 clbk(null);
                 return;
             }
             
-            logger("success getting build latest ancestry", img_ancestry);
+            logger(3, "success getting build latest ancestry", img_ancestry);
             clbk(img_ancestry);
             return;
         }
@@ -464,18 +464,18 @@ function _API_get_image_json(img_id, clbk) {
     request.get({"url": "https://"+this.endpoint+"/v1/images/"+img_id+"/json", "json": true, "headers": this.header},
         function name(error, response, img_json) {
             if (error) {
-                logger("error getting image json", error, img_json);
+                logger(3, "error getting image json", error, img_json);
                 clbk(null);
                 return;
             }
             
             if (response.headers['content-type'] != "application/json") {
-                logger("error getting image json. wrong type", response.headers['content-type'], img_json, response.request.uri.path);
+                logger(3, "error getting image json. wrong type", response.headers['content-type'], img_json, response.request.uri.path);
                 clbk(null);
                 return;
             }
             
-            logger("success getting image json", response.request.uri.path, img_json);
+            logger(3, "success getting image json", response.request.uri.path, img_json);
             clbk(img_json);
         }
     );

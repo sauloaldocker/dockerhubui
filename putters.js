@@ -9,9 +9,9 @@ var db_mapper = {
 
 
 function init(app) {
-    logger('configuring putting callback');
-    logger('using mods      cache', app.mods.cacher.cache_id );
-    logger('using dockerhub cache', dockerhub.cacher.cache_id);
+    logger(1, 'configuring putting callback');
+    logger(2, 'using mods      cache', app.mods.cacher.cache_id );
+    logger(2, 'using dockerhub cache', dockerhub.cacher.cache_id);
 
     dockerhub.init(app);
 
@@ -21,7 +21,7 @@ function init(app) {
 
 function callback(req, res) {
     var dbname = req.params.dbname;
-    logger("callback :: Got POST: dbname:", dbname);
+    logger(1, "callback :: Got POST: dbname:", dbname);
     //logger("callback :: Got POST:", util.inspect(req));
     
     if ( dbname in db_mapper ) { // in mapper
@@ -56,8 +56,8 @@ function callback(req, res) {
 
 function callback_dockerhub(req, res) {
     //logger("callback :: Got POST: dockerhub:"      , util.inspect(req));
-    logger("callback :: Got POST: dockerhub");
-    logger("callback :: Got POST: dockerhub. body:", req.body);
+    logger(1, "callback :: Got POST: dockerhub");
+    logger(2, "callback :: Got POST: dockerhub. body:", req.body);
 
     process_dockerhub_data(req.app, req.body);
 
@@ -68,18 +68,16 @@ function callback_dockerhub(req, res) {
 function process_dockerhub_data(app, data) {
         //console.log('processing dockerhub data: ', data);
         //logger('processing dockerhub data: ', data);
-        logger('processing dockerhub data');
+        logger(1, 'processing dockerhub data');
 
         var namespace    = data.repository.namespace;
         var name         = data.repository.name;
         var repo_name    = data.repository.repo_name;
         var callback_url = data.callback_url;
 
-        function let_dockerhub_know(status) { dockerhub.webhook_callback( callback_url, status ) }
-
-        logger('processing dockerhub data: namespace:', namespace);
-        logger('processing dockerhub data: name     :', name     );
-        logger('processing dockerhub data: repo name:', repo_name);
+        logger(2, 'processing dockerhub data: namespace:', namespace);
+        logger(2, 'processing dockerhub data: name     :', name     );
+        logger(2, 'processing dockerhub data: repo name:', repo_name);
 
         var no_cache = true;
 
@@ -101,16 +99,16 @@ function process_dockerhub_data(app, data) {
                         }
                     }
                     
-                    logger('processing dockerhub data: nrepos:', nrepos);
+                    logger(3, 'processing dockerhub data: nrepos:', nrepos);
                     
                     app.mods.getters.get_all_repo(namespace, repos, app, no_cache,
                         function(data) {
-                            console.log('processing dockerhub data: all data:', JSON.stringify(data));
-                            //let_dockerhub_know(true);
+                            //console.log('processing dockerhub data: all data:', JSON.stringify(data));
+                            let_dockerhub_know(callback_url, true);
                         }
                     );
                 } else {
-                    let_dockerhub_know(false);
+                    let_dockerhub_know(callback_url, false);
                 }
             }
         );
@@ -125,6 +123,12 @@ function process_dockerhub_data(app, data) {
         };
         */
 }
+
+
+function let_dockerhub_know(callback_url, status) { 
+    dockerhub.webhook_callback( callback_url, status );
+}
+
 
 /*
 repos { next: null,

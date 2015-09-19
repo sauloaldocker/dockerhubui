@@ -1,5 +1,6 @@
-var swig    = require( 'swig'        );
-var logger  = require( './logger.js' );	
+var swig    = require( 'swig'        ),
+    logger  = require( './logger.js' )
+    ;	
 	
 function init(app) {
     app.mods.swig             = swig;

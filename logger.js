@@ -12,6 +12,7 @@ function logger() {
 
     if (process.env.DEBUG) {
         log_level = Number.MAX_VALUE;
+        
         try {
             log_level = parseInt(process.env.DEBUG, 10);
         } catch (e) {
@@ -20,9 +21,14 @@ function logger() {
         
     if ( log_level > 0 ) {
         //console.log('log_level  ', log_level  );
+        //console.log('arguments', arguments);
+        
         var debug_level = arguments["0"];
-        delete arguments["0"];
+        arguments["0"] = '';
+        //delete arguments["0"];
+        
         //console.log('debug_level', debug_level);
+        //console.log('arguments', arguments);
         
         if ( debug_level >= log_level ) {
             process.stdout.write(path.basename(__stk_file) + " : " + __stk_line + " : " + __stk_function_ret + ":: ");
@@ -63,7 +69,7 @@ get: function() {
                     return n;
                 }
             } else {
-                return;
+                return '';
             }
         }
         return;

@@ -64,7 +64,7 @@ function get_repos(username, no_cache, clbk) {
                 return;
             }
             
-            //logger("success getting repos", response.request.uri.path, repos);
+            logger(3, "success getting repos", response.request.uri.path, data);
             logger(3, 'dockerhub.get_repos: username', username, 'no_cache', no_cache, "success getting repos", response.request.uri.path);
             //logger("success getting repos", response.headers);
 

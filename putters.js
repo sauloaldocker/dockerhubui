@@ -57,7 +57,7 @@ function callback(req, res) {
 function callback_dockerhub(req, res) {
     //logger("callback :: Got POST: dockerhub:"      , util.inspect(req));
     logger(1, "callback :: Got POST: dockerhub");
-    logger(2, "callback :: Got POST: dockerhub. body:", req.body);
+    logger(2, "callback :: Got POST: dockerhub. body:", JSON.stringify(req.body));
 
     process_dockerhub_data(req.app, req.body);
 
@@ -67,9 +67,10 @@ function callback_dockerhub(req, res) {
 
 function process_dockerhub_data(app, data) {
         //console.log('processing dockerhub data: ', data);
-        //logger('processing dockerhub data: ', data);
         logger(1, 'processing dockerhub data');
 
+        logger(3, 'processing dockerhub data: ', data);
+        
         var namespace    = data.repository.namespace;
         var name         = data.repository.name;
         var repo_name    = data.repository.repo_name;
@@ -88,25 +89,27 @@ function process_dockerhub_data(app, data) {
                     var nrepos = JSON.parse(JSON.stringify(repos));
                     nrepos.results = [];
                     
-                    //console.log('processing dockerhub data: repos:', repos);
+                    logger(3, 'processing dockerhub data: repos:', repos);
                     
                     for ( var r in repos.results ) {
                         var repo = repos.results[r];
-                        //console.log('processing dockerhub data: repo:', r);
+                        logger(3, 'processing dockerhub data: repo:', r);
                         if ( repo.namespace == namespace && repo.name == name ) {
-                            //console.log('processing dockerhub data: repo:', r, 'VALID', repo);
+                            logger(2, 'processing dockerhub data: repo:', r, 'VALID', repo);
                             nrepos.results.push(repo);
                         }
                     }
                     
                     logger(3, 'processing dockerhub data: nrepos:', nrepos);
                     
-                    app.mods.getters.get_all_repo(namespace, repos, app, no_cache,
+                    
+                    app.mods.getters.get_all_repo(namespace, nrepos, app, no_cache,
                         function(data) {
                             //console.log('processing dockerhub data: all data:', JSON.stringify(data));
                             let_dockerhub_know(callback_url, true);
                         }
                     );
+                    
                 } else {
                     let_dockerhub_know(callback_url, false);
                 }

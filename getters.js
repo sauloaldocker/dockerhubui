@@ -265,6 +265,7 @@ function get_all_username(username, app, no_cache, callback) {
             
             logger(2, 'get_all_username: username', username, "success getting repository list");
             
+            /*
             if ( app.conf.DEBUG > 1 ) {
                 logger(2, 'get_all_username: username', username, "got repos", 'DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
                 if ( repos.results.length > 2 ) {
@@ -276,6 +277,7 @@ function get_all_username(username, app, no_cache, callback) {
 
                 }
             }
+            */
 
             var repo_list = repos.results;
 
@@ -307,7 +309,7 @@ function get_all_repo(username, repos, app, no_cache, callback) {
         "status_desc": "getting data"
     };
 
-
+    /*
     if ( app.conf.DEBUG > 1 ) {
         logger(1, 'get_all_username: username', username, "got repos", 'DEBUGGING', app.conf.DEBUG, 'ONLY REPORTING ONE REPOSITORY');
         if ( repos.results.length > 2 ) {
@@ -319,12 +321,14 @@ function get_all_repo(username, repos, app, no_cache, callback) {
 
         }
     }
+    */
 
 
     logger(3, 'get_all_username: username', username, "repos", repos);
     var repo_list = repos.results;
     logger(3, 'get_all_username: username', username, "repo list", repo_list);
 
+    
     function info_getter(el, clbk) {
         logger(2, 'get_all_username: username', username, "getting info");
         

@@ -1,5 +1,6 @@
 /* global gen_pre      */
 /* global get_logs_raw */
+/* global marked       */
 
 function show_logs(key, src) {
     get_logs_str(src, 
@@ -29,7 +30,8 @@ function get_logs_str(src, clbk_success, clbk_failure) {
 
 function show_logs_success(key, logs) {
     console.log('success getting log', key);
-    display_popup(gen_pre(logs[key]));
+    //display_popup(gen_pre(logs[key]));
+    display_popup(marker(logs[key]));
 }
 
 function show_logs_failure(key, logs) {
@@ -40,13 +42,14 @@ function show_logs_failure(key, logs) {
 function show_popup(el) {
     console.log("popping");
     
-    var pre = el.getElementsByTagName('pre')[0];
-    var val = pre.cloneNode(true);
+    var span = el.getElementsByTagName('span')[0];
+    var val  = span.cloneNode(true);
     val.removeAttribute('class');
     
     console.log(val);
+    //console.log(marker(val.innerHTML));
     
-    display_popup(val);
+    display_popup(marker(val.innerHTML));
 }
 
 function display_popup(val) {
@@ -61,4 +64,8 @@ function display_popup(val) {
 function close_popup(){
     var $hover = $('#hoverer');
     $hover.removeClass('visible');
+}
+
+function marker(el) {
+    return marked(el).replace('=====', '<tr/>');
 }

@@ -65,9 +65,9 @@
             <td class="repo_info_full_description"                          id="{{tr_id}}_repo_info_full_description"                          name="repo_info_full_description">
                 {% if info.full_description %}
                 <button class="button" onclick="show_popup(this)">Show full description
-                    <pre class="pre_data">
-                        {{ info.full_description }}
-                    </pre>
+                    <span class="pre_data">
+{{ info.full_description }}
+                    </span>
                 </button>
                 {% endif %}
             </td>

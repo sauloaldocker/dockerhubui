@@ -33,7 +33,7 @@ function get_usage(dst_id_sessions, dst_id_views) {
     );
 }
 
-function get_tables(container_id, username) {
+function get_tables(container_id, username, clbk) {
     console.log("getting tables for user", username);
     $.ajax(
         {
@@ -44,14 +44,16 @@ function get_tables(container_id, username) {
     .fail(function(err) {
         alert('error getting xml: ' + err.responseText);
         console.log('error getting xml', err);
+        clbk(false);
     })
     .done(function(data) {
-        console.log('done getting xml');
+        console.log('success getting xml');
         document.getElementById(container_id).innerHTML = data;
+        clbk(true);
     })
     .always(function() {
         console.log('aways done getting xml');
-    });
+    })
     ;
 }
 

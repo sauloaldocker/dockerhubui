@@ -16,6 +16,8 @@ function init(app) {
     app.mods.serveStatic      = serveStatic;
     app.mods.serveFavicon     = serveFavicon;
 
+    app.use(serveFavicon(__dirname + '/favicon.ico'));
+
     //http://stackoverflow.com/questions/25550819/error-most-middleware-like-bodyparser-is-no-longer-bundled-with-express
     // parse application/json
     app.use( bodyParser.json() );
@@ -42,6 +44,7 @@ function init(app) {
     app.set('etag', function (body, encoding) {
       return checksum(body); // consider the function is defined
     });
+
     
     //Serve static pages
     app.use(app.mods.express.static('static', {etag: true}));

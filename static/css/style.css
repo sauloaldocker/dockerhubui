@@ -150,4 +150,18 @@ a:hover {
 .tableHeader {
 	-webkit-margin-after: 0;
 	-webkit-margin-before: 0;
+	display: inline;
+	padding-right: 30px;
+}
+
+hr {
+    width: 100% !important;
+    padding: 0 !important;
+    height: 1px;
+    margin: 0;
+    position: relative;
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
 }

@@ -8,13 +8,15 @@
     <thead>
         <tr>
             <th rowspan="2">Repository Name <img src='/images/sort.svg' class='arrows'</image></th>
-            <th class="row_header" colspan="5" >Repository information</th>
+            <th class="row_header" colspan="7" >Repository information</th>
             <th class="row_header" colspan="2" >Build History</th>
             <th class="row_header" colspan="14">Build Log</th>
         </tr>
 
         <tr>
             <th name="repo_description">Description <img src='/images/sort.svg' class='arrows'</image></th>
+            <th name="repo_run_cmd">Run command</th>
+            <th name="repo_class">Class <img src='/images/sort.svg' class='arrows'</image></th>
             <th name="repo_is_automated">Is automated <img src='/images/sort.svg' class='arrows'</image></th>
             <th name="repo_star_count"># Stars <img src='/images/sort.svg' class='arrows'</image></th>
             <th name="repo_pull_count"># Pull <img src='/images/sort.svg' class='arrows'</image></th>
@@ -54,10 +56,12 @@
 
         <tr class="repository_line" id="{{tr_id}}">
             <td class="repo_namespace"                                      id="{{tr_id}}_repo_namespace"                                      name="repo_namespace">
-                <a href="{{DOCKERHUB_URL}}u/{{repo.namespace}}/">{{ repo.namespace }}</a> / 
-                <a href="{{DOCKERHUB_URL}}r/{{repo.namespace}}/{{repo.name}}/">{{ repo.name }}
+                <a href="{{conf.DOCKERHUB_URL}}u/{{repo.namespace}}/">{{ repo.namespace }}</a> / 
+                <a href="{{conf.DOCKERHUB_URL}}r/{{repo.namespace}}/{{repo.name}}/">{{ repo.name }}
             </td>
             <td class="repo_description"                                    id="{{tr_id}}_repo_description"                                    name="repo_description">{{ repo.description }}</td>
+            <td class="repo_run_cmd"                                        id="{{tr_id}}_repo_run_cmd"                                        name="repo_run_cmd">{{ build_results.dockerfile_contents|extract_run_command_from_dockerfile }}</td>
+            <td class="repo_class"                                          id="{{tr_id}}_repo_class"                                          name="repo_class">{{ build_results.dockerfile_contents|extract_tags_from_dockerfile }}</td>
             <td class="repo_is_automated"                                   id="{{tr_id}}_repo_is_automated"                                   name="repo_is_automated">{{ repo.is_automated | automated_colorer | safe }}</td>
             <td class="repo_star_count"                                     id="{{tr_id}}_repo_star_count"                                     name="repo_star_count">{{ repo.star_count }}</td>
             <td class="repo_pull_count"                                     id="{{tr_id}}_repo_pull_count"                                     name="repo_pull_count">{{ repo.pull_count }}</td>
@@ -75,7 +79,7 @@
 
             {% if build_results.source_type == 'git' %}
                 {% set source_url_url  = build_results.source_url.replace('.git', '') %}
-                {% set source_url_name = source_url_url.replace(GIT_URL, "")          %}
+                {% set source_url_name = source_url_url.replace(conf.GIT_URL, "")          %}
                 <td class="repo_history_last_build_results_source_type"         id="{{tr_id}}_repo_history_last_build_results_source_type"         name="repo_history_last_build_results_source_type"><a href="https://github.com">git</a></td>
                 <td class="repo_history_last_build_results_source_url"          id="{{tr_id}}_repo_history_last_build_results_source_url"          name="repo_history_last_build_results_source_url"><a href="{{ source_url_url }}">{{ source_url_name }}</a></td>
                 <td class="repo_history_last_build_results_source_branch"       id="{{tr_id}}_repo_history_last_build_results_source_branch"       name="repo_history_last_build_results_source_branch"><a href="{{ source_url_url }}/tree/{{ build_results.source_branch }}">{{ build_results.source_branch }}</a></td>
@@ -90,7 +94,7 @@
             <td class="repo_history_last_build_results_status_description"  id="{{tr_id}}_repo_history_last_build_results_status_description"  name="repo_history_last_build_results_status_description">{{ build_results.status_description | status_colorer | safe }}</td>
             <td class="repo_history_last_build_created_date"                id="{{tr_id}}_repo_history_last_build_created_date"                name="repo_history_last_build_created_date">{{ last_build.created_date | parse_date }}</td>
             <td class="repo_history_last_build_last_updated"                id="{{tr_id}}_repo_history_last_build_last_updated"                name="repo_history_last_build_last_updated">{{ last_build.last_updated | parse_date }}</td>
-            <td class="repo_history_last_build_build_code"                  id="{{tr_id}}_repo_history_last_build_build_code"                  name="repo_history_last_build_build_code"><span class="fixed_width"><a href="{{ DOCKERHUB_URL }}r/{{ repo.namespace }}/{{ repo.name }}/builds/{{ last_build.build_code }}/">{{ last_build.build_code }}</a></span></td>
+            <td class="repo_history_last_build_build_code"                  id="{{tr_id}}_repo_history_last_build_build_code"                  name="repo_history_last_build_build_code"><span class="fixed_width"><a href="{{ conf.DOCKERHUB_URL }}r/{{ repo.namespace }}/{{ repo.name }}/builds/{{ last_build.build_code }}/">{{ last_build.build_code }}</a></span></td>
             
             {% if last_build.build_code %}
             <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs">
@@ -105,7 +109,7 @@
             <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents"></td>
             {% endif %}
 
-            <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user"><a href="{{ DOCKERHUB_URL }}u/{{ build_results.docker_user }}/">{{ build_results.docker_user }}</a></td>
+            <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user"><a href="{{ conf.DOCKERHUB_URL }}u/{{ build_results.docker_user }}/">{{ build_results.docker_user }}</a></td>
             <td class="repo_history_last_build_results_docker_tag"          id="{{tr_id}}_repo_history_last_build_results_docker_tag"          name="repo_history_last_build_results_docker_tag">{{ build_results.docker_tag }}</td>
             
             {% if build_results.failure %}

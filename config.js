@@ -6,7 +6,8 @@ var DATA_DIR              = process.env.DATA_DIR        || process.env.OPENSHIFT
 var APP_TITLE             = process.env.APP_TITLE       || 'Biodocker DockerHub Dashboard';
 var DOCKERHUB_URL         = process.env.DOCKERHUB_URL   || 'https://hub.docker.com/';
 var GIT_URL               = process.env.GIT_URL         || 'https://github.com/';
-var ALLOWED_REPOS         = process.env.ALLOWED_REPOS   || "biodckr,sauloal";
+var REQUESTED_REPOS       = process.env.REQUESTED_REPOS || "biodckr,biodckrdev";
+var ALLOWED_REPOS         = process.env.ALLOWED_REPOS   || "biodckr,biodckrdev,sauloal";
 var FORBIDDEN_REPOS       = process.env.FORBIDDEN_REPOS || "";
 var DEBUG                 = process.env.DEBUG           || false;
 //var DEBUG                 = process.env.DEBUG         || true;
@@ -20,6 +21,7 @@ function init(app) {
     app.conf.APP_TITLE        = APP_TITLE;
     app.conf.GIT_URL          = GIT_URL;
     app.conf.DEBUG            = DEBUG;
+    app.conf.REQUESTED_REPOS  = REQUESTED_REPOS;
     app.conf.ALLOWED_REPOS    = ALLOWED_REPOS;
     app.conf.FORBIDDEN_REPOS  = FORBIDDEN_REPOS;
     app.conf.HAS_FILTER       = ( ALLOWED_REPOS.length > 0 || FORBIDDEN_REPOS.length > 0 );
@@ -28,7 +30,7 @@ function init(app) {
     app.conf.swig             = {
         template_folder: path.join( app.conf.APPLICATION_ROOT, 'templates' ),
         view_cache     : false,
-        cache          : false
+        cache          : false // "memory"
     };
     app.conf.session_counter  = {
         default       : {

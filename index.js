@@ -29,9 +29,11 @@ app.mods = {
 
 config(app);
 
+app.conf.REQUESTED_REPOS  = app.conf.REQUESTED_REPOS.split(',');
 app.conf.ALLOWED_REPOS    = app.conf.ALLOWED_REPOS.split(',');
 app.conf.FORBIDDEN_REPOS  = app.conf.FORBIDDEN_REPOS.split(',');
 
+if ( app.conf.REQUESTED_REPOS[0] == "" ) { app.conf.REQUESTED_REPOS = [] }
 if ( app.conf.ALLOWED_REPOS[0]   == "" ) { app.conf.ALLOWED_REPOS   = [] }
 if ( app.conf.FORBIDDEN_REPOS[0] == "" ) { app.conf.FORBIDDEN_REPOS = [] }
 
@@ -41,6 +43,7 @@ console.log( 'DOCKERHUB_URL   ', app.conf.DOCKERHUB_URL                         
 console.log( 'APP_TITLE       ', app.conf.APP_TITLE                                        );
 console.log( 'GIT_URL         ', app.conf.GIT_URL                                          );
 console.log( 'DEBUG           ', app.conf.DEBUG                                            );
+console.log( 'REQUESTED_REPOS ', app.conf.REQUESTED_REPOS, app.conf.REQUESTED_REPOS.length );
 console.log( 'ALLOWED_REPOS   ', app.conf.ALLOWED_REPOS  , app.conf.ALLOWED_REPOS.length   );
 console.log( 'FORBIDDEN_REPOS ', app.conf.FORBIDDEN_REPOS, app.conf.FORBIDDEN_REPOS.length );
 console.log( 'HAS_FILTER      ', app.conf.HAS_FILTER                                       );
@@ -67,7 +70,10 @@ function add_app(req, res, next) {
     req.app = app;
     next();
 }
+
 app.use(add_app);
+
+
 
 exports.app      = app;
 

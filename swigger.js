@@ -14,13 +14,16 @@ function init(app) {
 
     swig.setDefaults({ cache: app.conf.swig.cache });
     
-    swig.setFilter( 'sanitize'              , sanitize               );
-    swig.setFilter( 'parse_date'            , parse_date             );
-    swig.setFilter( 'status_colorer'        , status_colorer         );
-    swig.setFilter( 'automated_colorer'     , automated_colorer      );
-    swig.setFilter( 'strip_leading_slash'   , strip_leading_slash    );
-    swig.setFilter( 'strip_trailing_slash'  , strip_trailing_slash   );
-    swig.setFilter( 'strip_terminal_slashes', strip_terminal_slashes );
+    swig.setFilter( 'sanitize'                           , sanitize                            );
+    swig.setFilter( 'parse_date'                         , parse_date                          );
+    swig.setFilter( 'status_colorer'                     , status_colorer                      );
+    swig.setFilter( 'automated_colorer'                  , automated_colorer                   );
+    swig.setFilter( 'strip_leading_slash'                , strip_leading_slash                 );
+    swig.setFilter( 'strip_trailing_slash'               , strip_trailing_slash                );
+    swig.setFilter( 'strip_terminal_slashes'             , strip_terminal_slashes              );
+    swig.setFilter( 'extract_tags_from_dockerfile'       , extract_tags_from_dockerfile        );
+    swig.setFilter( 'extract_run_command_from_dockerfile', extract_run_command_from_dockerfile );
+    
 }
 
 function sanitize(n) {
@@ -71,6 +74,17 @@ function strip_trailing_slash(s){
 
 function strip_terminal_slashes(s){
     return strip_leading_slash(strip_trailing_slash(s));
+}
+
+
+function extract_tags_from_dockerfile(s) {
+    var res = /\n# Tags:(.*)\n/gm.exec(s) || ["-", "*"];
+    return res[1].trim();
+}
+
+function extract_run_command_from_dockerfile(s) {
+    var res = /\n# Run Cmd:(.*)\n/gm.exec(s) || ["-", "*"];
+    return res[1].trim();
 }
 
 exports.init   = init;

@@ -2,7 +2,8 @@ var CONTAINER     = "mainContent";
 var HOVER         = "hoverer";
 var DOCKERHUB_URL = 'https://hub.docker.com/';
 var GIT_URL       = 'https://github.com/';
-var DOCKER_DATA   = { "biodckr": {} }; // default username to show
+//var DOCKER_DATA   = { "biodckr": {}, "biodckrdev": {} }; // default username to show
+var DOCKER_DATA   = { }; // default username to show
 var DEBUG         = false;
 //var DEBUG         = true;
 
@@ -13,6 +14,7 @@ console.log("DOCKER_DATA"  , DOCKER_DATA  );
 
 /* global url */
 // get extra repos from the URL bar
+/*
 var url_repo = url('?repos');
 console.log("url_repos", url_repo);
 
@@ -24,3 +26,4 @@ if ( url_repo) {
         DOCKER_DATA[repo] = {};
     }
 }
+*/

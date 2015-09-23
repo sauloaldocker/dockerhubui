@@ -1,18 +1,20 @@
-/* global get_usage   */
-/* global CONTAINER   */
-/* global get_tables  */
-/* global DOCKER_DATA */
-/* global get_title   */
+/* global get_usage      */
+/* global CONTAINER      */
+/* global get_tables     */
+/* global DOCKER_DATA    */
+/* global get_title      */
+/* global get_namespaces */
 
 $(document).ready(function(){
     console.log('document is ready');
     
-        get_usage("num_sessions", "num_views");
-        get_title("title_title" );
-        get_title("header_title");
+    get_usage("num_sessions", "num_views");
+    get_title("title_title" );
+    get_title("header_title");
+    get_namespaces(DOCKER_DATA, function() {
         //var username = 'biodckr';
         
-        console.log(DOCKER_DATA);
+        console.log('DOCKER_DATA', DOCKER_DATA);
         var usernames = Object.keys(DOCKER_DATA);
         var username  = usernames.join('|');
         if ( usernames.length > 0 ) {
@@ -31,4 +33,5 @@ $(document).ready(function(){
                 }
             });
         }
+    });
 })

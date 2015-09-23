@@ -33,6 +33,23 @@ function get_usage(dst_id_sessions, dst_id_views) {
     );
 }
 
+function get_namespaces(db, clbk) {
+    console.log("getting usernames");
+    $.getJSON( "/namespaces/", 
+        function(data) {
+            console.log("got namespaces:", data);
+            
+            var namespaces = data.namespaces;
+            
+            for ( var d in namespaces ) {
+                db[ namespaces[d] ] = {}
+            }
+            
+            clbk();
+        }
+    );
+}
+
 function get_tables(container_id, username, clbk) {
     console.log("getting tables for user", username);
     $.ajax(

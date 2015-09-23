@@ -14,8 +14,9 @@ function init(app) {
     app.get(    '/html/:username/'                       , dynamic_html     );
     app.get(    '/title/'                                , get_title        );
     app.get(    '/permissions/'                          , get_permissions  );
+    app.get(    '/namespaces/'                           , get_namespaces  );
 
-    //app.get(    '/update/'                               , update           );    
+    app.get(    '/update/'                               , update           );    
 }
 
 
@@ -28,6 +29,9 @@ function get_permissions(req,res) {
     res.json({"allowed": req.app.conf.ALLOWED_REPOS, "forbidden": req.app.conf.FORBIDDEN_REPOS});
 }
 
+function get_namespaces(req,res) {
+    res.json({"namespaces": req.app.conf.REQUESTED_REPOS});
+}
 
 function send_data(hit_cache, res, data) {
     //var jdata = JSON.stringify(data);
@@ -506,9 +510,7 @@ function render_dynamic(req, res, file, render_as, no_cache) {
                     all_results  : all_results,
                     num_sessions : req.app.mods.sessionCounter.get_num_sessions_sync(),
                     num_views    : req.app.mods.sessionCounter.get_num_views_sync(),
-                    DOCKERHUB_URL: req.app.conf.DOCKERHUB_URL,
-                    GIT_URL      : req.app.conf.GIT_URL,
-                    APP_TITLE    : req.app.conf.APP_TITLE
+                    conf         : req.app.conf
                 }
             );
         } else {

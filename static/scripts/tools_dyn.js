@@ -82,3 +82,123 @@ function close_popup(){
 function marker(el) {
     return marked(el).replace('=====', '<tr/>');
 }
+
+function recolor_classes() {
+    var rclasses = $(".repo_class");
+    //console.log('rclasses', rclasses);
+    var classes  = {};
+    $.each(rclasses, 
+        function(x, v) {
+            var $v   = $(v);
+            var vals = $v.html();
+            //console.log('x',x,'v',v,'val',vals);
+            $.each(vals.split("|"), 
+                function(y, w) {
+                    if ( ! ( w in {"":0, "-":0, "*":0} ) ) {
+                        classes[w] = classes[w] ? classes[w] + 1 : 1;
+                    }
+                }
+            );
+        }
+    );
+    
+    console.log('classes', classes);
+    var classes_names = Object.keys(classes);
+    
+    classes_names.sort();
+    console.log('classes_names', classes_names);
+    
+    var names_classes = [];
+    $.each(classes_names, 
+        function(x, v) {
+            names_classes[v] = x;
+        }
+    );
+    console.log('names_classes', names_classes);
+    
+    $.each(rclasses, 
+        function(x, v) {
+            var $v   = $(v);
+            var vals = $v.html();
+            var html = [];
+            //console.log('x',x,'v',v,'val',vals);
+            $.each(vals.split("|"), 
+                function(y, w) {
+                    var span = $('<span>');
+                    span.html(w);
+
+                    if ( ! ( w in {"":0, "-":0, "*":0} ) ) {
+                        classes[w] = classes[w] ? classes[w] + 1 : 1;
+                        
+                        if ( w in names_classes ) {
+                            var cid = names_classes[w] + 2;
+                            span.attr('class', 'class_' + cid);
+                        
+                        } else {
+                            span.attr('class', 'class_1');
+                        
+                        }
+                        
+                    } else {
+                        span.attr('class', 'class_0');
+                    }
+                    html.push(span);
+                }
+            );
+            $v.html('');
+            $v.append(html);
+        }
+    );
+}
+
+function resize_cols() {
+    var sizes = {};
+    var cols  = $('.col_header');
+    
+    $.each(cols, 
+        function(x,v) {
+            //console.log(x,v);
+            var $v    = $(v);
+            var name  = $v.attr('name');
+            var width = $v.width();
+            if ( name in sizes ) {
+                sizes[name] = width > sizes[name] ? width : sizes[name];
+            } else {
+                sizes[name] = width;
+            }
+        }
+    );
+    
+    console.log('sizes',sizes);
+    
+    var sum = 0;
+    $.each(sizes, 
+        function(x, v) {
+            var $els = $('th[name="'+x+'"]');
+            //console.log('x',x,'v',v,'$els',$els);
+            v *= 1.05;
+            sum += v;
+            
+            $.each($els,
+                function(y, w) {
+                    //console.log(' y',y,'w',w);
+                    $(w).width( v + 'px' );
+                    $(w).css('max-width', v + 'px');
+                    $(w).css('min-width', v + 'px');
+                    //$(w).css('background-color', 'red');
+                }
+            );
+        }
+    );
+    
+    //console.log('sum', sum);
+
+    /*
+    $.each($('.repo_table'), 
+        function(x, v) {
+            $(v).width(sum);
+        }
+    );
+    */
+    
+}

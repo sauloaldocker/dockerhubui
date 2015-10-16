@@ -52,7 +52,11 @@ function format_date(d) {
 
 
 function sanitize_status(n) {
-    return n.replace('.', '_').replace('+', '_').replace('/', '_').replace('\\', '_').replace(' ', '_').replace('__', '_').replace('__', '_').toLowerCase();
+    return n.replace(/\./g, '_').replace(/-/g, '_').replace(/\+/g, '_').replace(/\//g, '_').replace(/\\/g, '_').replace(/ /g, '_').replace(/_+/g, '_')
+}
+
+function sanitize_name(n) {
+    return n.replace(/\./g, '_').replace(/-/g, '_').replace(/\+/g, '_').replace(/\//g, '_').replace(/\\/g, '_').replace(/ /g, '_').replace(/_+/g, '_').toLowerCase();
 }
 
 function gen_pre (y) {

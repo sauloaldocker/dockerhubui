@@ -8,16 +8,25 @@
     <thead>
         <tr>
             <th class="col_super_header col_header" name="repo_namespace" rowspan="2" >Repository Name <img src='/images/sort.svg' class='arrows'</image></th>
-            <th class="col_super_header"                                  colspan="7" >Repository information</th>
-            <th class="col_super_header"                                  colspan="2" >Build History</th>
-            <th class="col_super_header"                                  colspan="14">Build Log</th>
+            <th class="col_super_header"                                  colspan="11">Repository information</th>
+            <th class="col_super_header"                                  colspan="3" >Build History</th>
+            <th class="col_super_header"                                  colspan="16">Build Log</th>
         </tr>
 
         <tr>
-            <th class="col_header" name="repo_description" >Description <img src='/images/sort.svg' class='arrows'</image></th>
-            <th class="col_header" name="repo_run_cmd"     >Run command</th>
-            <th class="col_header" name="repo_class"       >Class <img src='/images/sort.svg' class='arrows'</image></th>
-            <th class="col_header" name="repo_is_automated">Is automated <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_software"        >Software <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_software_version">Version <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_description"     >Description <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_website"         >Website <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_tags"            >Tags <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_provides"        >Provides <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_base_image"      >Base Image <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_build_command"   >Build <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_pull_command"    >Pull <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_run_command"     >Run <img src='/images/sort.svg' class='arrows'</image></th>
+            <th class="col_header" name="repo_extra"           >Extra <img src='/images/sort.svg' class='arrows'</image></th>
+
+            <!-- <th class="col_header" name="repo_is_automated">Is automated <img src='/images/sort.svg' class='arrows'</image></th> -->
             <th class="col_header" name="repo_star_count"  ># Stars <img src='/images/sort.svg' class='arrows'</image></th>
             <th class="col_header" name="repo_pull_count"  ># Pull <img src='/images/sort.svg' class='arrows'</image></th>
             <th class="col_header" name="repo_last_updated">Last updated <img src='/images/sort.svg' class='arrows'</image></th>
@@ -59,13 +68,23 @@
                 <a href="{{conf.DOCKERHUB_URL}}u/{{repo.namespace}}/">{{ repo.namespace }}</a> / 
                 <a href="{{conf.DOCKERHUB_URL}}r/{{repo.namespace}}/{{repo.name}}/">{{ repo.name }}
             </td>
-            <td class="repo_description"                                    id="{{tr_id}}_repo_description"                                    name="repo_description">{{ repo.description }}</td>
-            <td class="repo_run_cmd"                                        id="{{tr_id}}_repo_run_cmd"                                        name="repo_run_cmd">{{ build_results.dockerfile_contents|extract_run_command_from_dockerfile }}</td>
-            <td class="repo_class"                                          id="{{tr_id}}_repo_class"                                          name="repo_class">{{ build_results.dockerfile_contents|extract_tags_from_dockerfile }}</td>
-            <td class="repo_is_automated"                                   id="{{tr_id}}_repo_is_automated"                                   name="repo_is_automated">{{ repo.is_automated | automated_colorer | safe }}</td>
+            <td class="repo_software"                                       id="{{tr_id}}_repo_software"                                       name="repo_software">{{ build_results.dockerfile_contents|extract_from_dockerfile_software }}</td>
+            <td class="repo_software_version"                               id="{{tr_id}}_repo_software_version"                               name="repo_software_version">{{ build_results.dockerfile_contents|extract_from_dockerfile_software_version }}</td>
+            <td class="repo_description"                                    id="{{tr_id}}_repo_description"                                    name="repo_description">{{ build_results.dockerfile_contents|extract_from_dockerfile_description }}</td>
+            <td class="repo_website"                                        id="{{tr_id}}_repo_website"                                        name="repo_website">{{ build_results.dockerfile_contents|extract_from_dockerfile_website }}</td>
+            <td class="repo_tags"                                           id="{{tr_id}}_repo_tags"                                           name="repo_tags">{{ build_results.dockerfile_contents|extract_from_dockerfile_tags }}</td>
+            <td class="repo_provides"                                       id="{{tr_id}}_repo_provides"                                       name="repo_provides">{{ build_results.dockerfile_contents|extract_from_dockerfile_provides }}</td>
+            <td class="repo_base_image"                                     id="{{tr_id}}_repo_base_image"                                     name="repo_base_image">{{ build_results.dockerfile_contents|extract_from_dockerfile_base_image }}</td>
+            <td class="repo_build_command"                                  id="{{tr_id}}_repo_build_command"                                  name="repo_build_command">{{ build_results.dockerfile_contents|extract_from_dockerfile_build_command }}</td>
+            <td class="repo_pull_command"                                   id="{{tr_id}}_repo_pull_command"                                   name="repo_pull_command">{{ build_results.dockerfile_contents|extract_from_dockerfile_pull_command }}</td>
+            <td class="repo_run_command"                                    id="{{tr_id}}_repo_run_command"                                    name="repo_run_command">{{ build_results.dockerfile_contents|extract_from_dockerfile_run_command }}</td>
+            <td class="repo_extra"                                          id="{{tr_id}}_repo_extra"                                          name="repo_extra">{{ build_results.dockerfile_contents|extract_from_dockerfile_extra }}</td>
+
+            <!-- <td class="repo_is_automated"                                   id="{{tr_id}}_repo_is_automated"                                   name="repo_is_automated">{{ repo.is_automated }}</td> -->
             <td class="repo_star_count"                                     id="{{tr_id}}_repo_star_count"                                     name="repo_star_count">{{ repo.star_count }}</td>
             <td class="repo_pull_count"                                     id="{{tr_id}}_repo_pull_count"                                     name="repo_pull_count">{{ repo.pull_count }}</td>
             <td class="repo_last_updated"                                   id="{{tr_id}}_repo_last_updated"                                   name="repo_last_updated">{{ repo.last_updated | parse_date }}</td>
+
             <td class="repo_info_full_description"                          id="{{tr_id}}_repo_info_full_description"                          name="repo_info_full_description">
                 {% if info.full_description %}
                 <button class="button" onclick="show_description(this)">Show full description
@@ -76,6 +95,7 @@
                 {% endif %}
             </td>
             <td class="history_count"                                       id="{{tr_id}}_history_count"                                       name="repo_history_count">{{ history.count }}</td>
+
 
             {% if build_results.source_type == 'git' %}
                 {% set source_url_url  = build_results.source_url.replace('.git', '') %}
@@ -91,11 +111,13 @@
                 <td class="repo_history_last_build_results_build_path"          id="{{tr_id}}_repo_history_last_build_results_build_path"          name="repo_history_last_build_results_build_path">{{ build_results.build_path }}</td>
             {% endif %}
 
-            <td class="repo_history_last_build_results_status_description"  id="{{tr_id}}_repo_history_last_build_results_status_description"  name="repo_history_last_build_results_status_description">{{ build_results.status_description | status_colorer | safe }}</td>
+
+            <td class="repo_history_last_build_results_status_description"  id="{{tr_id}}_repo_history_last_build_results_status_description"  name="repo_history_last_build_results_status_description">{{ build_results.status_description }}</td>
             <td class="repo_history_last_build_created_date"                id="{{tr_id}}_repo_history_last_build_created_date"                name="repo_history_last_build_created_date">{{ last_build.created_date | parse_date }}</td>
             <td class="repo_history_last_build_last_updated"                id="{{tr_id}}_repo_history_last_build_last_updated"                name="repo_history_last_build_last_updated">{{ last_build.last_updated | parse_date }}</td>
             <td class="repo_history_last_build_build_code"                  id="{{tr_id}}_repo_history_last_build_build_code"                  name="repo_history_last_build_build_code"><span class="fixed_width"><a href="{{ conf.DOCKERHUB_URL }}r/{{ repo.namespace }}/{{ repo.name }}/builds/{{ last_build.build_code }}/">{{ last_build.build_code }}</a></span></td>
             
+
             {% if last_build.build_code %}
             <td class="repo_history_last_build_results_logs"                id="{{tr_id}}_repo_history_last_build_results_logs"                name="repo_history_last_build_results_logs">
                 <button class="button" onclick="show_logs('logs'               , this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show logs</button>
@@ -109,9 +131,11 @@
             <td class="repo_history_last_build_results_dockerfile_contents" id="{{tr_id}}_repo_history_last_build_results_dockerfile_contents" name="repo_history_last_build_results_dockerfile_contents"></td>
             {% endif %}
 
+
             <td class="repo_history_last_build_results_docker_user"         id="{{tr_id}}_repo_history_last_build_results_docker_user"         name="repo_history_last_build_results_docker_user"><a href="{{ conf.DOCKERHUB_URL }}u/{{ build_results.docker_user }}/">{{ build_results.docker_user }}</a></td>
             <td class="repo_history_last_build_results_docker_tag"          id="{{tr_id}}_repo_history_last_build_results_docker_tag"          name="repo_history_last_build_results_docker_tag">{{ build_results.docker_tag }}</td>
             
+
             {% if build_results.failure %}
             <td class="repo_history_last_build_results_failure"             id="{{tr_id}}_repo_history_last_build_results_failure"             name="repo_history_last_build_results_failure">
                 <button class="button" onclick="show_failure('failure', this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show failure</button>
@@ -120,6 +144,7 @@
             <td class="repo_history_last_build_results_failure"             id="{{tr_id}}_repo_history_last_build_results_failure"             name="repo_history_last_build_results_failure"></td>
             {% endif %}
             
+
             {% if build_results.error %}
             <td class="repo_history_last_build_results_error"               id="{{tr_id}}_repo_history_last_build_results_error"               name="repo_history_last_build_results_error">
                 <button class="button" onclick="show_error('error', this)" repo_full_name="{{repo.namespace}}/{{repo.name}}" build_code="{{ last_build.build_code }}">Show error</button>

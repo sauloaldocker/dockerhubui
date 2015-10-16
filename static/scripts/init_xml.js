@@ -4,6 +4,10 @@
 /* global DOCKER_DATA    */
 /* global get_title      */
 /* global get_namespaces */
+/* global recolor        */
+/* global resize_cols    */
+/* global finish         */
+
 
 $(document).ready(
     function(){
@@ -22,6 +26,9 @@ $(document).ready(
                         function(status) {
                             if (status) {
                                 console.log('success getting tables');
+                                recolor();
+                                resize_cols();
+
                                 $(".tablesorter").each(
                                     function(e, el) {
                                         console.log("initing table sorter on", e, el);
@@ -29,9 +36,6 @@ $(document).ready(
                                         console.log("table sorter initialized on", e, el);
                                     }
                                 );
-                                
-                                recolor_classes();
-                                resize_cols();
                             } else {
                                 console.log('error getting tables');
                                 

@@ -6,14 +6,16 @@
   "author": "Saulo Aflitos <sauloal@gmail.com>",
   "main": "index.js",
   "single-instance": true,
-  "scripts": {"start": "nodemon index.js"},
+  "scripts": {
+    "start": "nodemon index.js"
+  },
   "license": "MIT",
   "dependencies": {
     "body-parser": "*",
     "cookie-parser": "*",
     "cookie-session": "*",
-	  "compression": "*",
-	  "checksum": "*",
+    "compression": "*",
+    "checksum": "*",
     "debug": "*",
     "errorhandler": "*",
     "express": "*",
@@ -24,5 +26,8 @@
     "serve-favicon": "*",
     "serve-static": "*",
     "swig": "*"
+  },
+  "devDependencies": {
+    "nodemon": "^1.9.2"
   }
 }
